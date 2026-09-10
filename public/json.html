@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <title>JSON 工具 · 工具汇总</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%2338bdf8' d='M8 3h2v8h4V3h2v10H2V3h2v8h2zM2 15h12v2H2zM2 19h20v2H2zM16 3h6v2h-4v2h3v2h-3v2h4v2h-6z'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="/css/style.css?v=20260904c">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand home-link" href="/">
+      <span class="brand-icon">&#128736;</span>
+      <span class="brand-name">工具汇总</span>
+    </a>
+    <nav class="page-nav">
+      <a href="/text.html">文本工具</a>
+      <span class="current">JSON 工具</span>
+      <a href="/regex.html">正则工具</a>
+    </nav>
+    <nav class="sites">
+      <a href="https://chat.tykrem.top/">Codex Chat</a>
+      <a href="https://tykrem.top/">服务器监控</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <section class="panel active">
+      <div class="panel-head">
+        <h1>JSON 工具</h1>
+        <p class="desc">A 输入 JSON，B 实时格式化或展示错误。支持对象/数组折叠、彩色语法与行号；压缩模式会输出单行 JSON。</p>
+      </div>
+
+      <div class="json-grid">
+        <div class="card editor-card">
+          <div class="ed-head">
+            <span class="ed-name">A 输入</span>
+            <span class="ed-hint" id="json-a-hint">若 A 是整段被转义的 JSON，可点击“解析转义”</span>
+            <button class="btn small" id="json-decode" type="button">解析转义</button>
+            <button class="btn small" id="json-a-clear" type="button">清空</button>
+          </div>
+          <div id="editorJsonA" class="editor"></div>
+        </div>
+
+        <div class="card editor-card json-output-card">
+          <div class="ed-head json-out-head">
+            <span class="ed-name">B 输出 <em class="readonly-tag">只读</em></span>
+            <span class="ed-hint" id="json-b-hint">等待输入</span>
+            <div class="btn-group">
+              <button class="btn small active" id="json-pretty" type="button">格式化</button>
+              <button class="btn small" id="json-compact" type="button">压缩</button>
+            </div>
+            <button class="btn small" id="json-expand" type="button">全部展开</button>
+            <button class="btn small" id="json-collapse" type="button">全部收起</button>
+            <button class="btn small primary" id="json-copy" type="button" disabled title="复制完整 JSON（不随折叠截断）">复制</button>
+          </div>
+          <div class="json-output">
+            <div class="json-empty" id="json-empty">在 A 输入 JSON 后，这里会显示格式化结果或错误信息</div>
+            <div class="json-error hidden" id="json-error"></div>
+            <div class="json-rows hidden" id="json-rows"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="toast" class="toast hidden" role="status"></div>
+  <div class="mobile-block">
+    <div class="mobile-card">
+      <p class="mobile-emoji">📱</p>
+      <h2>不支持移动端</h2>
+      <p>当前页面暂不支持移动端，请使用电脑浏览器访问。</p>
+    </div>
+  </div>
+  <script src="/js/common.js"></script>
+  <script src="/js/json.js"></script>
+</body>
+</html>

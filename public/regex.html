@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <title>正则工具 · 工具汇总</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%2338bdf8' d='M8 3h2v8h4V3h2v10H2V3h2v8h2zM2 15h12v2H2zM2 19h20v2H2zM16 3h6v2h-4v2h3v2h-3v2h4v2h-6z'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="/css/style.css?v=20260904c">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand home-link" href="/">
+      <span class="brand-icon">&#128736;</span>
+      <span class="brand-name">工具汇总</span>
+    </a>
+    <nav class="page-nav">
+      <a href="/text.html">文本工具</a>
+      <a href="/json.html">JSON 工具</a>
+      <span class="current">正则工具</span>
+    </nav>
+    <nav class="sites">
+      <a href="https://chat.tykrem.top/">Codex Chat</a>
+      <a href="https://tykrem.top/">服务器监控</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <section class="panel active">
+      <div class="panel-head">
+        <h1>正则工具</h1>
+        <p class="desc">输入正则表达式和文本，列出全部匹配的位置与内容。支持大小写、多行、单行（dotAll）等常用标记。</p>
+      </div>
+
+      <div class="card toolbar-card">
+        <div class="mode-group regex-pattern-group">
+          <span class="mode-label">表达式</span>
+          <input id="regex-pattern" class="regex-input" type="text" spellcheck="false" autocomplete="off" placeholder="例如：\d+ 或 (https?)://[^\s]+">
+        </div>
+        <div class="regex-flags" role="group" aria-label="正则标记">
+          <label><input type="checkbox" value="i"> i 忽略大小写</label>
+          <label><input type="checkbox" value="m"> m 多行</label>
+          <label><input type="checkbox" value="s"> s 单行(.匹配换行)</label>
+          <label><input type="checkbox" value="u"> u Unicode</label>
+        </div>
+        <div class="toolbar-actions">
+          <button class="btn primary" id="regex-execute" type="button">匹配</button>
+          <button class="btn" id="regex-clear" type="button">清空</button>
+        </div>
+      </div>
+
+      <div class="text-grid">
+        <div class="card editor-card">
+          <div class="ed-head">
+            <span class="ed-name">A 文本</span>
+            <span class="ed-hint" id="regex-text-hint">输入要匹配的文本</span>
+            <button class="btn small" id="regex-text-clear" type="button">清空</button>
+          </div>
+          <div id="regex-text" class="editor"></div>
+        </div>
+
+        <div class="card editor-card regex-result-card">
+          <div class="ed-head">
+            <span class="ed-name">匹配结果</span>
+            <span class="ed-hint" id="regex-result-hint">等待执行</span>
+            <button class="btn small" id="regex-copy" type="button" disabled>复制全部匹配</button>
+          </div>
+          <div class="regex-result" id="regex-result">
+            <div class="regex-empty" id="regex-empty">点击“匹配”查看全部结果</div>
+            <div class="regex-error hidden" id="regex-error"></div>
+            <div class="regex-list hidden" id="regex-list"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="toast" class="toast hidden" role="status"></div>
+  <div class="mobile-block">
+    <div class="mobile-card">
+      <p class="mobile-emoji">📱</p>
+      <h2>不支持移动端</h2>
+      <p>当前页面暂不支持移动端，请使用电脑浏览器访问。</p>
+    </div>
+  </div>
+  <script src="/js/common.js"></script>
+  <script src="/js/regex.js"></script>
+</body>
+</html>
