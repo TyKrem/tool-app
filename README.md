@@ -1,35 +1,56 @@
-# 工具汇总页（tool.tykrem.top）
+# tool-app
 
-纯静态工具页，无需后端服务，由 nginx 直接托管。
-
-## 目录
-
-- `/root/tool-app`：可编辑源码（public/deploy）
-- `/opt/tool-app`：运行目录
-- `/etc/nginx/conf.d/tool.tykrem.top.conf`：站点配置
+一组开箱即用的纯静态在线小工具。没有后端、没有构建步骤，
+丢到任何静态服务器（nginx / GitHub Pages / 对象存储）就能跑。
 
 ## 工具
 
-- `/`：工具汇总页，入口卡片跳转到各工具独立页面
-- `/text.html`：文本工具（A/B/C 三个文本框，去重 / 交集 / 并集，行号与实时高亮）
-- `/json.html`：JSON 工具（格式化 / 压缩、语法着色、折叠、行号、错误提示）
-- `/regex.html`：正则工具（表达式 + 标记，列出全部匹配位置、内容与分组）
+| 页面 | 功能 |
+| --- | --- |
+| `/` | 工具汇总页，卡片跳转到各工具 |
+| `/text.html` | 文本工具：A / B / C 三个文本框，去重、交集、并集，带行号与实时高亮 |
+| `/json.html` | JSON 工具：格式化 / 压缩、语法着色、可折叠、行号、错误定位 |
+| `/regex.html` | 正则工具：输入表达式与标记，列出全部匹配位置、内容与捕获分组 |
 
-前端结构：`public/js/common.js` 提供通用编辑器组件，`text.js` / `json.js` / `regex.js`
-分别初始化各工具页面。
+## 结构
 
-## 同步
+```
+public/
+  index.html          工具汇总页
+  text.html           文本工具
+  json.html           JSON 工具
+  regex.html          正则工具
+  css/style.css       样式
+  js/common.js        通用编辑器组件（行号、高亮、折叠）
+  js/text.js          text.html 的初始化逻辑
+  js/json.js          json.html 的初始化逻辑
+  js/regex.js         regex.html 的初始化逻辑
+deploy/               作者实际使用的 nginx 站点配置，可作参考
+```
+
+## 运行
+
+纯静态，本地起个服务即可预览：
 
 ```bash
-cp -a /root/tool-app/public/. /opt/tool-app/public/
+cd public && python3 -m http.server 8080
+# 打开 http://127.0.0.1:8080/
+```
+
+部署到 nginx：
+
+```bash
+cp -a public/. /var/www/tool-app/
+# 站点配置参考 deploy/tool.http.conf 与 deploy/tool.tykrem.top.conf
 nginx -t && systemctl reload nginx
 ```
 
-## 证书续期
+`deploy/` 下是作者实际在用的配置，里面的域名与证书路径需要按你的环境改。
 
-acme.sh 安装到 `/etc/nginx/ssl/tool.tykrem.top` 后自动续期，
-续期命令在 `/root/.acme.sh/tool.tykrem.top_ecc/tool.tykrem.top.conf`。
+## 浏览器支持
+
+用的是原生 JS 与 CSS（无框架、无 polyfill），现代浏览器均可。
 
 ## License
 
-MIT
+[MIT](LICENSE)
