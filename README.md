@@ -29,3 +29,7 @@ nginx -t && systemctl reload nginx
 
 acme.sh 安装到 `/etc/nginx/ssl/tool.tykrem.top` 后自动续期，
 续期命令在 `/root/.acme.sh/tool.tykrem.top_ecc/tool.tykrem.top.conf`。
+
+## License
+
+MIT
