@@ -31,39 +31,11 @@
     placeholder: "C：结果将在这里显示",
   });
 
-  function splitLines(value) {
-    var lines = String(value || "").split("\n");
-    if (lines.length > 1 && lines[lines.length - 1] === "") lines.pop();
-    return lines;
-  }
-
-  function uniqueInOrder(lines) {
-    var seen = {};
-    var out = [];
-    lines.forEach(function (line) {
-      if (!Object.prototype.hasOwnProperty.call(seen, line)) {
-        seen[line] = 1;
-        out.push(line);
-      }
-    });
-    return out;
-  }
-
-  function countsBy(lines) {
-    var map = {};
-    lines.forEach(function (l) {
-      map[l] = (map[l] || 0) + 1;
-    });
-    return map;
-  }
-
-  function setOf(lines) {
-    var s = {};
-    lines.forEach(function (l) {
-      s[l] = true;
-    });
-    return s;
-  }
+  // 这四个在 text-core.js 里（浏览器/Node 都能加载，便于单测）
+  var splitLines = window.TextCore.splitLines;
+  var uniqueInOrder = window.TextCore.uniqueInOrder;
+  var countsBy = window.TextCore.countsBy;
+  var setOf = window.TextCore.setOf;
 
   function updateTextHighlights() {
     var aLines = splitLines(edA.ta.value);
@@ -139,7 +111,9 @@
     if (textState.mode === "dedupe") {
       out = uniqueInOrder(aLines);
     } else if (textState.mode === "intersect") {
-      var seen = {};
+      // 同 text-core.js：用 Object.create(null) 当查找表，
+      // 否则一行正好叫 __proto__ 时去重不生效
+      var seen = Object.create(null);
       var bs = setOf(bLines);
       aLines.forEach(function (line) {
         if (bs[line] && !Object.prototype.hasOwnProperty.call(seen, line)) {

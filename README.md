@@ -54,3 +54,12 @@ nginx -t && systemctl reload nginx
 ## License
 
 [MIT](LICENSE)
+## 测试
+
+```bash
+node --test test/        # 需要 Node 16.17+（node:test 内置，没有额外依赖）
+```
+
+`public/js/text-core.js` 是文本工具的核心逻辑，写成浏览器和 Node 都能加载的
+形式（页面挂 `window.TextCore`，Node 走 `module.exports`），所以不用引 jsdom
+就能直接测。
