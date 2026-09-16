@@ -14,6 +14,12 @@
   --danger: #cf222e;
   --dup-bg: rgba(207, 34, 46, 0.12);
   --hit-bg: rgba(26, 127, 55, 0.11);
+  --add: #1a7f37;
+  --add-soft: rgba(26, 127, 55, 0.13);
+  --del: #cf222e;
+  --del-soft: rgba(207, 34, 46, 0.10);
+  --chg: #9a6700;
+  --chg-soft: rgba(154, 103, 0, 0.16);
   --code-bg: #fbfcfe;
   --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", "Courier New", monospace;
   --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
@@ -459,6 +465,10 @@ button {
   grid-column: 1 / -1;
 }
 
+.full-span {
+  grid-column: 1 / -1;
+}
+
 .ed-head {
   display: flex;
   align-items: center;
@@ -477,6 +487,10 @@ button {
   font-size: 12px;
   flex: 1;
   min-width: 80px;
+}
+
+.ed-hint.error {
+  color: var(--danger);
 }
 
 .readonly-tag {
@@ -499,6 +513,12 @@ button {
 .editor.output {
   min-height: 220px;
   height: clamp(180px, 32vh, 330px);
+}
+
+/* Diff 页下面还有一整块对比结果，A/B 编辑器压矮一些 */
+.text-grid.compact-editors .editor {
+  min-height: 170px;
+  height: clamp(170px, 26vh, 260px);
 }
 
 .regex-result-card {
@@ -938,6 +958,384 @@ button {
 
   .mode-group {
     flex-wrap: wrap;
+  }
+}
+
+/* ---------- 表单控件（数学 / 字符串 / 时间戳工具） ---------- */
+.form-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 12px 14px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+  flex: 0 1 auto;
+}
+
+.field.grow {
+  flex: 1 1 220px;
+}
+
+.field-label {
+  color: var(--text-secondary);
+  font-size: 12.5px;
+  font-weight: 600;
+}
+
+.input,
+.select {
+  height: 38px;
+  padding: 0 11px;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: var(--bg-elev);
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 13.5px;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  min-width: 0;
+}
+
+.select {
+  font-family: var(--sans);
+  cursor: pointer;
+}
+
+.input:focus,
+.select:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.input.small {
+  width: 104px;
+}
+
+.check-line {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 38px;
+  color: var(--text-secondary);
+  font-size: 13px;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.check-line input {
+  width: 15px;
+  height: 15px;
+  margin: 0;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+.textarea {
+  min-height: 92px;
+  padding: 9px 11px;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: var(--bg-elev);
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 13px;
+  line-height: 1.6;
+  resize: vertical;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+kbd {
+  border: 1px solid var(--border);
+  border-bottom-width: 2px;
+  border-radius: 5px;
+  background: var(--bg-soft);
+  color: var(--text-secondary);
+  font-family: var(--mono);
+  font-size: 11.5px;
+  padding: 0 5px;
+}
+
+/* ---------- 模块卡片与结果框（数学 / 时间戳工具） ---------- */
+.module-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(330px, 1fr));
+  gap: 14px;
+  align-items: start;
+}
+
+.card.module {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+}
+
+.card.module.span-2 {
+  grid-column: span 2;
+}
+
+.module-head h2 {
+  margin: 0 0 4px;
+  font-size: 16px;
+}
+
+.module-desc {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 12.5px;
+  line-height: 1.6;
+}
+
+.module-desc code {
+  font-family: var(--mono);
+  font-size: 12px;
+  background: var(--bg-soft);
+  border-radius: 5px;
+  padding: 1px 5px;
+}
+
+.module-desc.error {
+  color: var(--danger);
+}
+
+.result-box {
+  min-height: 42px;
+  max-height: 240px;
+  overflow: auto;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--code-bg);
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 13px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.result-box.muted {
+  color: var(--text-faint);
+}
+
+.result-box.error {
+  border-color: rgba(207, 34, 46, 0.4);
+  background: rgba(207, 34, 46, 0.05);
+  color: #a40e26;
+  font-family: var(--sans);
+  font-weight: 600;
+}
+
+.result-foot {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.result-foot .hint {
+  flex: 1;
+  min-width: 120px;
+  color: var(--text-faint);
+  font-size: 12px;
+}
+
+/* ---------- 文本 Diff 对比 ---------- */
+.diff-view {
+  flex: 1;
+  min-height: 340px;
+  height: min(56vh, 620px);
+  overflow: auto;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--code-bg);
+}
+
+.diff-empty {
+  padding: 40px 20px;
+  color: var(--text-faint);
+  text-align: center;
+}
+
+.diff-rows {
+  width: max-content;
+  min-width: 100%;
+  font-family: var(--mono);
+  font-size: 13px;
+  line-height: var(--ed-lh);
+}
+
+.diff-row {
+  display: flex;
+  min-height: var(--ed-lh);
+}
+
+.diff-sign {
+  flex: 0 0 30px;
+  width: 30px;
+  text-align: center;
+  color: var(--text-faint);
+  user-select: none;
+}
+
+.diff-text {
+  padding-right: 20px;
+  white-space: pre;
+}
+
+.diff-row.add {
+  background: var(--add-soft);
+}
+
+.diff-row.add .diff-sign {
+  color: var(--add);
+  font-weight: 700;
+}
+
+.diff-row.del {
+  background: var(--del-soft);
+}
+
+.diff-row.del .diff-sign {
+  color: var(--del);
+  font-weight: 700;
+}
+
+.diff-text mark {
+  border-radius: 3px;
+  color: inherit;
+}
+
+.diff-text mark.ins {
+  background: rgba(26, 127, 55, 0.3);
+}
+
+.diff-text mark.del {
+  background: rgba(207, 34, 46, 0.22);
+  text-decoration: line-through;
+}
+
+.diff-row.fold {
+  background: var(--bg-soft);
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.diff-row.fold:hover {
+  color: var(--accent);
+}
+
+.diff-row.fold .diff-sign {
+  color: inherit;
+}
+
+.diff-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin: 10px 0 0;
+  color: var(--text-secondary);
+  font-size: 12px;
+}
+
+.diff-legend i {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  margin-right: 5px;
+  border-radius: 3px;
+  vertical-align: -1px;
+}
+
+/* ---------- 正则高亮预览 ---------- */
+.regex-preview {
+  flex: 1;
+  min-height: 180px;
+  max-height: 420px;
+  overflow: auto;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--code-bg);
+  font-family: var(--mono);
+  font-size: 12.5px;
+  line-height: 1.65;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.regex-preview mark {
+  border-radius: 3px;
+  background: var(--chg-soft);
+  color: inherit;
+  box-shadow: inset 0 -1px 0 var(--chg);
+}
+
+/* ---------- 实时时间卡（时间戳工具） ---------- */
+.live-card {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px 18px;
+}
+
+.live-main {
+  flex: 1 1 260px;
+  min-width: 0;
+}
+
+.live-eyebrow {
+  margin: 0 0 4px;
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.live-time {
+  font-size: clamp(20px, 2.6vw, 26px);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.live-stamp {
+  margin-top: 3px;
+  color: var(--text-secondary);
+  font-family: var(--mono);
+  font-size: 14px;
+}
+
+.live-tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.time-extra {
+  margin: 8px 0 0;
+  color: var(--text-secondary);
+  font-size: 12.5px;
+}
+
+@media (max-width: 860px) {
+  .card.module.span-2 {
+    grid-column: auto;
+  }
+
+  .diff-view {
+    height: 46vh;
   }
 }
 

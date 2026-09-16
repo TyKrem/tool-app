@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <title>Diff 对比 · 工具汇总</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%2338bdf8' d='M8 3h2v8h4V3h2v10H2V3h2v8h2zM2 15h12v2H2zM2 19h20v2H2zM16 3h6v2h-4v2h3v2h-3v2h4v2h-6z'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="/css/style.css?v=20260916">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand home-link" href="/">
+      <span class="brand-icon">&#128736;</span>
+      <span class="brand-name">工具汇总</span>
+    </a>
+    <nav class="page-nav">
+      <a href="/text.html">文本工具</a>
+      <a href="/json.html">JSON 工具</a>
+      <a href="/regex.html">正则工具</a>
+      <span class="current">Diff 对比</span>
+      <a href="/math.html">数学工具</a>
+      <a href="/string.html">字符串工具</a>
+      <a href="/timestamp.html">时间戳工具</a>
+    </nav>
+    <nav class="sites">
+      <a href="https://chat.tykrem.top/">Codex Chat</a>
+      <a href="https://tykrem.top/">服务器监控</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <section class="panel active">
+      <div class="panel-head">
+        <h1>Diff 对比</h1>
+        <p class="desc">按行比较 A、B 两段文本，标出新增、删除与修改的行；修改行会进一步标出改动到哪几个字。未变化的长段落默认折叠起来，点一下就展开。</p>
+      </div>
+
+      <div class="card toolbar-card">
+        <span class="mode-label">把 A 改成 B 的差异，一眼看完</span>
+        <div class="toolbar-actions">
+          <button class="btn primary" id="diff-run" type="button">开始对比</button>
+          <button class="btn" id="diff-swap" type="button">交换 A / B</button>
+          <button class="btn" id="diff-clear" type="button">清空</button>
+        </div>
+      </div>
+
+      <div class="text-grid compact-editors">
+        <div class="card editor-card">
+          <div class="ed-head">
+            <span class="ed-name">A 原始文本</span>
+            <span class="ed-hint" id="diff-a-hint">0 行</span>
+          </div>
+          <div id="diff-a" class="editor"></div>
+        </div>
+
+        <div class="card editor-card">
+          <div class="ed-head">
+            <span class="ed-name">B 新文本</span>
+            <span class="ed-hint" id="diff-b-hint">0 行</span>
+          </div>
+          <div id="diff-b" class="editor"></div>
+        </div>
+
+        <div class="card full-span">
+          <div class="ed-head">
+            <span class="ed-name">对比结果</span>
+            <span class="ed-hint" id="diff-result-hint">等待对比</span>
+            <button class="btn small" id="diff-toggle" type="button">只看差异</button>
+            <button class="btn small primary" id="diff-copy" type="button" disabled>复制结果</button>
+          </div>
+          <div class="diff-view" id="diff-view">
+            <div class="diff-empty" id="diff-empty">点击“开始对比”，这里会逐行列出两份文本的差异。</div>
+            <div class="diff-rows hidden" id="diff-rows"></div>
+          </div>
+          <p class="diff-legend">
+            <span><i style="background:rgba(26,127,55,.13)"></i>新增行</span>
+            <span><i style="background:rgba(207,34,46,.1)"></i>删除行</span>
+            <span><i style="background:rgba(26,127,55,.3)"></i>行内新增字</span>
+            <span><i style="background:rgba(207,34,46,.22)"></i>行内删除字</span>
+            <span>快捷键：<kbd>Ctrl</kbd> / <kbd>⌘</kbd> + <kbd>Enter</kbd> 直接对比</span>
+          </p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="toast" class="toast hidden" role="status"></div>
+  <div class="mobile-block">
+    <div class="mobile-card">
+      <p class="mobile-emoji">📱</p>
+      <h2>不支持移动端</h2>
+      <p>当前页面暂不支持移动端，请使用电脑浏览器访问。</p>
+    </div>
+  </div>
+  <script src="/js/common.js"></script>
+  <script src="/js/diff-core.js"></script>
+  <script src="/js/diff.js"></script>
+</body>
+</html>

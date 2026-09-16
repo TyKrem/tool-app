@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="referrer" content="strict-origin-when-cross-origin">
-  <title>文本工具 · 工具汇总</title>
+  <title>字符串工具 · 工具汇总</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%2338bdf8' d='M8 3h2v8h4V3h2v10H2V3h2v8h2zM2 15h12v2H2zM2 19h20v2H2zM16 3h6v2h-4v2h3v2h-3v2h4v2h-6z'/%3E%3C/svg%3E">
   <link rel="stylesheet" href="/css/style.css?v=20260916">
 </head>
@@ -15,12 +15,12 @@
       <span class="brand-name">工具汇总</span>
     </a>
     <nav class="page-nav">
-      <span class="current">文本工具</span>
+      <a href="/text.html">文本工具</a>
       <a href="/json.html">JSON 工具</a>
       <a href="/regex.html">正则工具</a>
       <a href="/diff.html">Diff 对比</a>
       <a href="/math.html">数学工具</a>
-      <a href="/string.html">字符串工具</a>
+      <span class="current">字符串工具</span>
       <a href="/timestamp.html">时间戳工具</a>
     </nav>
     <nav class="sites">
@@ -32,49 +32,44 @@
   <main class="container">
     <section class="panel active">
       <div class="panel-head">
-        <h1>文本工具</h1>
-        <p class="desc">按行处理：去重 / 交集 / 并集。去重高亮 A 中重复行，交集高亮 A、B 中相同行；行号与高亮实时显示，C 为只读结果。</p>
+        <h1>字符串工具</h1>
+        <p class="desc">转义字符串、UTF-8 Hex、HTML 实体、URL 编码四种转换，都能双向还原。边输入边出结果，勾选“反向还原”就按解码处理。</p>
       </div>
 
       <div class="card toolbar-card">
-        <div class="mode-group" role="group" aria-label="模式">
-          <span class="mode-label">模式</span>
-          <div class="seg" id="text-mode-seg">
-            <button class="seg-btn active" type="button" data-mode="dedupe">去重</button>
-            <button class="seg-btn" type="button" data-mode="intersect">交集</button>
-            <button class="seg-btn" type="button" data-mode="union">并集</button>
+        <div class="mode-group" role="group" aria-label="转换类型">
+          <span class="mode-label">转换类型</span>
+          <div class="seg" id="string-type">
+            <button class="seg-btn active" type="button" data-type="escape">转义字符串</button>
+            <button class="seg-btn" type="button" data-type="hex">Hex 字符串</button>
+            <button class="seg-btn" type="button" data-type="entity">HTML 实体</button>
+            <button class="seg-btn" type="button" data-type="url">URL 编码</button>
           </div>
         </div>
+        <label class="check-line"><input id="string-reverse" type="checkbox">反向还原</label>
+        <label class="check-line hidden" id="string-all-entity-wrap"><input id="string-all-entity" type="checkbox">全部转实体</label>
         <div class="toolbar-actions">
-          <button class="btn primary" id="text-execute" type="button">执行</button>
-          <button class="btn" id="text-clear" type="button">清空</button>
+          <button class="btn primary" id="string-run" type="button">转换</button>
+          <button class="btn" id="string-clear" type="button">清空</button>
         </div>
       </div>
 
       <div class="text-grid">
         <div class="card editor-card">
           <div class="ed-head">
-            <span class="ed-name">A 输入</span>
-            <span class="ed-hint" id="hintA"></span>
+            <span class="ed-name" id="string-input-name">A 输入</span>
+            <span class="ed-hint" id="string-input-hint">0 字符</span>
           </div>
-          <div id="editorA" class="editor" data-kind="A"></div>
+          <div id="string-input" class="editor"></div>
         </div>
 
         <div class="card editor-card">
           <div class="ed-head">
-            <span class="ed-name">B 输入</span>
-            <span class="ed-hint" id="hintB"></span>
+            <span class="ed-name">B 输出 <em class="readonly-tag">只读</em></span>
+            <span class="ed-hint" id="string-output-hint">等待输入</span>
+            <button class="btn small" id="string-copy" type="button">复制输出</button>
           </div>
-          <div id="editorB" class="editor" data-kind="B"></div>
-        </div>
-
-        <div class="card editor-card output-card">
-          <div class="ed-head">
-            <span class="ed-name">C 输出 <em class="readonly-tag">只读</em></span>
-            <span class="ed-hint" id="hintC">点击“执行”后生成</span>
-            <button class="btn small" id="text-copy" type="button">复制 C</button>
-          </div>
-          <div id="editorC" class="editor output" data-kind="C"></div>
+          <div id="string-output" class="editor"></div>
         </div>
       </div>
     </section>
@@ -89,7 +84,7 @@
     </div>
   </div>
   <script src="/js/common.js"></script>
-  <script src="/js/text-core.js"></script>
-  <script src="/js/text.js"></script>
+  <script src="/js/string-core.js"></script>
+  <script src="/js/string.js"></script>
 </body>
 </html>

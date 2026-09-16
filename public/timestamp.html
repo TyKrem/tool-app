@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <title>时间戳工具 · 工具汇总</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%2338bdf8' d='M8 3h2v8h4V3h2v10H2V3h2v8h2zM2 15h12v2H2zM2 19h20v2H2zM16 3h6v2h-4v2h3v2h-3v2h4v2h-6z'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="/css/style.css?v=20260916">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand home-link" href="/">
+      <span class="brand-icon">&#128736;</span>
+      <span class="brand-name">工具汇总</span>
+    </a>
+    <nav class="page-nav">
+      <a href="/text.html">文本工具</a>
+      <a href="/json.html">JSON 工具</a>
+      <a href="/regex.html">正则工具</a>
+      <a href="/diff.html">Diff 对比</a>
+      <a href="/math.html">数学工具</a>
+      <a href="/string.html">字符串工具</a>
+      <span class="current">时间戳工具</span>
+    </nav>
+    <nav class="sites">
+      <a href="https://chat.tykrem.top/">Codex Chat</a>
+      <a href="https://tykrem.top/">服务器监控</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <section class="panel active">
+      <div class="panel-head">
+        <h1>时间戳工具</h1>
+        <p class="desc">时间与秒级、毫秒级时间戳互相转换，都按本机时区计算（<span id="zone-label">检测中…</span>）。顶部实时显示当前时间，可切换毫秒、复制或暂停。</p>
+      </div>
+
+      <div class="card live-card">
+        <div class="live-main">
+          <p class="live-eyebrow">当前时间</p>
+          <div class="live-time" id="live-time">--</div>
+          <div class="live-stamp" id="live-stamp">--</div>
+        </div>
+        <div class="live-tools">
+          <button class="btn" id="live-unit" type="button">显示毫秒</button>
+          <button class="btn primary" id="live-copy" type="button">复制时间戳</button>
+          <button class="btn" id="live-pause" type="button">暂停</button>
+        </div>
+      </div>
+
+      <div class="module-grid">
+        <section class="card module">
+          <div class="module-head">
+            <h2>时间 → 时间戳</h2>
+            <p class="module-desc">选好时间，再挑要秒还是毫秒，点“转换”即出结果。右侧下拉切换单位会自动重算。</p>
+          </div>
+          <div class="form-row">
+            <label class="field grow">
+              <span class="field-label">指定时间</span>
+              <input id="time-input" class="input" type="datetime-local" step="1">
+            </label>
+            <label class="field">
+              <span class="field-label">单位</span>
+              <select id="time-unit" class="select">
+                <option value="seconds">秒</option>
+                <option value="milliseconds">毫秒</option>
+              </select>
+            </label>
+            <button class="btn" id="time-now" type="button">填入当前时间</button>
+            <button class="btn primary" id="time-run" type="button">转换</button>
+          </div>
+          <div class="result-box muted" id="time-result">等待输入…</div>
+          <p class="time-extra" id="time-extra"></p>
+          <div class="result-foot">
+            <span class="hint">按本机时区换算，秒级取整</span>
+            <button class="btn small" data-copy="time-result" type="button">复制时间戳</button>
+          </div>
+        </section>
+
+        <section class="card module">
+          <div class="module-head">
+            <h2>时间戳 → 时间</h2>
+            <p class="module-desc">粘贴 10 位秒级或 13 位毫秒级时间戳都行，按位数自动判断，也可以在单位下拉里手动指定。</p>
+          </div>
+          <div class="form-row">
+            <label class="field grow">
+              <span class="field-label">时间戳</span>
+              <input id="stamp-input" class="input" type="text" inputmode="numeric" autocomplete="off" placeholder="例如：1758000000">
+            </label>
+            <label class="field">
+              <span class="field-label">单位</span>
+              <select id="stamp-unit" class="select">
+                <option value="">自动判断</option>
+                <option value="seconds">秒</option>
+                <option value="milliseconds">毫秒</option>
+              </select>
+            </label>
+            <button class="btn primary" id="stamp-run" type="button">转换</button>
+          </div>
+          <div class="result-box muted" id="stamp-result">等待输入…</div>
+          <p class="time-extra" id="stamp-extra"></p>
+          <div class="result-foot">
+            <span class="hint">输入后自动转换，负数表示 1970 年之前</span>
+            <button class="btn small" data-copy="stamp-result" type="button">复制时间</button>
+          </div>
+        </section>
+      </div>
+    </section>
+  </main>
+
+  <div id="toast" class="toast hidden" role="status"></div>
+  <div class="mobile-block">
+    <div class="mobile-card">
+      <p class="mobile-emoji">📱</p>
+      <h2>不支持移动端</h2>
+      <p>当前页面暂不支持移动端，请使用电脑浏览器访问。</p>
+    </div>
+  </div>
+  <script src="/js/common.js"></script>
+  <script src="/js/timestamp-core.js"></script>
+  <script src="/js/timestamp.js"></script>
+</body>
+</html>
