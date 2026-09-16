@@ -63,6 +63,25 @@
     hint.classList.toggle("error", !!isError);
   }
 
+  var REFERENCE_BASES = ["2", "8", "10", "16", "36"];
+
+  function clearBaseReference() {
+    REFERENCE_BASES.forEach(function (base) {
+      $("base-ref-" + base).textContent = "—";
+    });
+  }
+
+  // 顺手把常用进制都算出来，省得来回改进制数字
+  function fillBaseReference(value, fromBase) {
+    REFERENCE_BASES.forEach(function (base) {
+      try {
+        $("base-ref-" + base).textContent = Core.convertBase(value, fromBase, base);
+      } catch (err) {
+        $("base-ref-" + base).textContent = "—";
+      }
+    });
+  }
+
   // direction 为 'a2b' 时读 A 写 B，'b2a' 时反过来
   function convertBase(direction) {
     var fromValue = direction === "a2b" ? $("base-value-a").value : $("base-value-b").value;
@@ -73,6 +92,7 @@
     if (!fromValue.trim()) {
       toField.value = "";
       baseHint("例：A 填 FF、进制 16，B 就会显示 10 进制的 255。");
+      clearBaseReference();
       return;
     }
     try {
@@ -81,8 +101,10 @@
       baseHint(
         Number(fromBase) + " 进制的 " + fromValue.trim() + " = " + Number(toBase) + " 进制的 " + converted
       );
+      fillBaseReference(fromValue, fromBase);
     } catch (err) {
       baseHint(err.message, true);
+      clearBaseReference();
     }
   }
 
@@ -179,7 +201,6 @@
 
   $("pick-run").addEventListener("click", function () {
     var items = toItems("pick-items");
-    $("pick-hint").textContent = "候选 " + items.length + " 项";
     try {
       var values = Core.sample(items, $("pick-count").value, $("pick-unique").checked);
       setResult("pick-result", values.join("\n"));
@@ -189,12 +210,12 @@
   });
 
   $("shuffle-run").addEventListener("click", function () {
-    var items = toItems("shuffle-items");
+    var items = toItems("pick-items");
     if (!items.length) {
-      setResult("shuffle-result", "请先输入待排序内容，每行一项。", true);
+      setResult("pick-result", "请先输入内容，每行一项。", true);
       return;
     }
-    setResult("shuffle-result", Core.shuffle(items).join("\n"));
+    setResult("pick-result", Core.shuffle(items).join("\n"));
   });
 
   /* ---------- UUID ---------- */

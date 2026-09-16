@@ -24,6 +24,8 @@
   --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", "Courier New", monospace;
   --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
   --radius: 12px;
+  /* 表单控件统一高度：输入框、下拉、按钮在同一行要对齐 */
+  --ctl-h: 34px;
   --ed-pad-x: 12px;
   --ed-pad-y: 8px;
   --ed-lh: 22px;
@@ -40,6 +42,8 @@ body {
 }
 
 body {
+  display: flex;
+  flex-direction: column;
   background:
     radial-gradient(1000px 500px at 15% -10%, rgba(11, 127, 196, 0.07), transparent 60%),
     radial-gradient(900px 500px at 90% 0%, rgba(26, 127, 55, 0.04), transparent 55%),
@@ -57,6 +61,7 @@ button {
 }
 
 .topbar {
+  flex: 0 0 auto;
   display: flex;
   align-items: center;
   gap: 18px;
@@ -166,9 +171,12 @@ button {
 }
 
 .container {
-  height: calc(100% - 54px);
-  overflow-y: auto;
-  padding: 20px 22px 36px;
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 14px 18px 16px;
+  overflow: hidden;
 }
 
 /* ---------- 汇总页 ---------- */
@@ -177,18 +185,18 @@ button {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: calc(100% - 54px);
-  padding-bottom: 74px;
+  gap: 18px;
+  min-height: 0;
 }
 
 .summary-hero {
+  flex: 0 0 auto;
   text-align: center;
-  margin-bottom: 30px;
 }
 
 .summary-hero h1 {
-  margin: 0 0 8px;
-  font-size: 34px;
+  margin: 0 0 6px;
+  font-size: 30px;
   background: linear-gradient(90deg, #0b7fc4, #1a7f37);
   -webkit-background-clip: text;
   background-clip: text;
@@ -198,29 +206,42 @@ button {
 .summary-hero p {
   margin: 0;
   color: var(--text-secondary);
-  font-size: 15px;
+  font-size: 13.5px;
 }
 
 .summary-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 520px));
-  gap: 16px;
-  justify-content: center;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  grid-auto-rows: minmax(0, 1fr);
+  gap: 14px;
   width: 100%;
-  max-width: 1080px;
+  max-width: 1360px;
+  flex: 1 1 auto;
+  min-height: 0;
+  /* 屏幕很高时卡片别被拉太长，整块保持居中 */
+  max-height: 560px;
 }
 
 .tool-card {
+  grid-column: span 3;
+  position: relative;
   display: flex;
-  align-items: center;
-  gap: 16px;
-  padding: 20px 22px;
+  flex-direction: column;
+  justify-content: center;
+  gap: 12px;
+  padding: 20px;
+  min-width: 0;
   background: var(--bg-elev);
   border: 1px solid var(--border-soft);
   border-radius: var(--radius);
   text-decoration: none;
   color: var(--text);
   transition: border-color 0.15s, transform 0.15s, background 0.15s;
+}
+
+/* 7 张卡片排成两行：第一行 4 张、第二行 3 张，两行都正好占满 */
+.tool-card:nth-child(n + 5) {
+  grid-column: span 4;
 }
 
 .tool-card:hover {
@@ -230,37 +251,56 @@ button {
 }
 
 .tool-card-icon {
-  flex: 0 0 54px;
-  width: 54px;
-  height: 54px;
+  flex: 0 0 auto;
+  width: 46px;
+  height: 46px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 25px;
-  border-radius: 14px;
+  font-size: 22px;
+  border-radius: 12px;
   background: var(--accent-soft);
   color: var(--accent);
 }
 
 .tool-card-body {
-  flex: 1;
   min-width: 0;
 }
 
 .tool-card-body h2 {
-  margin: 0 0 6px;
-  font-size: 19px;
+  margin: 0 0 5px;
+  font-size: 17px;
 }
 
 .tool-card-body p {
   margin: 0;
   color: var(--text-secondary);
-  font-size: 13px;
+  font-size: 12.5px;
   line-height: 1.55;
 }
 
+.tool-card-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 10px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tool-card-tags li {
+  border-radius: 6px;
+  padding: 2px 8px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 11.5px;
+}
+
 .tool-card-arrow {
-  font-size: 20px;
+  position: absolute;
+  top: 16px;
+  right: 18px;
+  font-size: 18px;
   color: var(--text-faint);
   transition: transform 0.15s, color 0.15s;
 }
@@ -271,20 +311,16 @@ button {
 }
 
 .site-footer {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
+  flex: 0 0 auto;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 10px;
-  padding: 14px;
+  padding: 9px 14px;
   color: var(--text-faint);
   font-size: 12px;
   background: rgba(255, 255, 255, 0.92);
   border-top: 1px solid var(--border-soft);
-  z-index: 10;
 }
 
 .site-footer a {
@@ -298,38 +334,58 @@ button {
 
 .panel {
   display: none;
-  max-width: 1500px;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  max-width: 1800px;
   margin: 0 auto;
+  flex: 1 1 auto;
+  min-height: 0;
 }
 
 .panel.active {
-  display: block;
+  display: flex;
+}
+
+.panel-head {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 3px 14px;
 }
 
 .panel-head h1 {
-  margin: 0 0 4px;
-  font-size: 24px;
+  margin: 0;
+  font-size: 20px;
+  letter-spacing: -0.02em;
 }
 
 .panel-head .desc {
-  margin: 0 0 16px;
+  margin: 0;
+  flex: 1 1 420px;
+  min-width: 0;
   color: var(--text-secondary);
-  max-width: 900px;
+  font-size: 12.5px;
+  line-height: 1.5;
 }
 
 .card {
   background: var(--bg-elev);
   border: 1px solid var(--border-soft);
   border-radius: var(--radius);
-  padding: 14px;
+  padding: 12px;
+  min-width: 0;
+  min-height: 0;
 }
 
 .toolbar-card {
+  flex: 0 0 auto;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 14px;
-  margin-bottom: 14px;
+  gap: 10px 14px;
+  padding: 10px 12px;
 }
 
 .mode-group {
@@ -411,11 +467,16 @@ button {
 }
 
 .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: var(--ctl-h);
   border: 1px solid var(--border);
   background: var(--bg-soft);
   color: var(--text);
   border-radius: 9px;
-  padding: 7px 14px;
+  padding: 0 14px;
+  font-size: 13px;
   cursor: pointer;
   transition: border-color 0.15s, background 0.15s;
   white-space: nowrap;
@@ -444,7 +505,8 @@ button {
 }
 
 .btn.small {
-  padding: 4px 9px;
+  height: 26px;
+  padding: 0 10px;
   font-size: 12px;
   border-radius: 7px;
 }
@@ -452,13 +514,17 @@ button {
 .text-grid {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: 14px;
+  grid-template-rows: minmax(0, 1.15fr) minmax(0, 1fr);
+  gap: 12px;
+  flex: 1 1 auto;
+  min-height: 0;
 }
 
 .editor-card {
   display: flex;
   flex-direction: column;
   min-width: 0;
+  min-height: 0;
 }
 
 .editor-card.output-card {
@@ -472,10 +538,11 @@ button {
 .ed-head {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   flex-wrap: wrap;
-  margin-bottom: 10px;
-  min-height: 28px;
+  flex: 0 0 auto;
+  margin-bottom: 8px;
+  min-height: 26px;
 }
 
 .ed-name {
@@ -505,30 +572,42 @@ button {
 }
 
 .editor {
-  flex: 1;
-  min-height: 220px;
-  height: clamp(220px, 44vh, 500px);
+  flex: 1 1 auto;
+  min-height: 0;
+  height: auto;
 }
 
 .editor.output {
-  min-height: 220px;
-  height: clamp(180px, 32vh, 330px);
+  min-height: 0;
 }
 
-/* Diff 页下面还有一整块对比结果，A/B 编辑器压矮一些 */
-.text-grid.compact-editors .editor {
-  min-height: 170px;
-  height: clamp(170px, 26vh, 260px);
+/* 正则页：文本 / 匹配结果 / 高亮预览 三栏并排，各自内部滚动 */
+.text-grid.regex-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-rows: minmax(0, 1fr);
+}
+
+/* 字符串页：输入输出左右各一半 */
+.text-grid.string-grid {
+  grid-template-rows: minmax(0, 1fr);
+}
+
+/* Diff 页：上面 A/B 编辑器，下面整行结果 */
+.text-grid.diff-grid {
+  grid-template-rows: minmax(0, 1fr) minmax(0, 1.6fr);
 }
 
 .regex-result-card {
   grid-column: 1 / -1;
 }
 
+.regex-grid .regex-result-card {
+  grid-column: auto;
+}
+
 .regex-result {
-  flex: 1;
-  min-height: 180px;
-  max-height: 420px;
+  flex: 1 1 auto;
+  min-height: 0;
   overflow-y: auto;
   border: 1px solid var(--border);
   border-radius: 10px;
@@ -627,7 +706,8 @@ button {
 /* ---------- 代码编辑器 ---------- */
 .code-editor {
   height: 100%;
-  min-height: 180px;
+  /* 不设最小高度：行高由外层栅格决定，否则会把一屏布局顶破 */
+  min-height: 0;
   display: flex;
   cursor: text;
   border: 1px solid var(--border);
@@ -735,8 +815,11 @@ button {
 .json-grid {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: 14px;
+  grid-template-rows: minmax(0, 1fr);
+  gap: 12px;
   align-items: stretch;
+  flex: 1 1 auto;
+  min-height: 0;
 }
 
 .json-output-card {
@@ -744,9 +827,8 @@ button {
 }
 
 .json-output {
-  flex: 1;
-  min-height: 320px;
-  height: calc(100vh - 230px);
+  flex: 1 1 auto;
+  min-height: 0;
   border: 1px solid var(--border);
   border-radius: 10px;
   background: var(--code-bg);
@@ -916,80 +998,37 @@ button {
   background: transparent;
 }
 
-/* ---------- 响应式 ---------- */
-@media (max-width: 980px) {
-  .text-grid,
-  .json-grid {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .editor-card.output-card {
-    grid-column: auto;
-  }
-
-  .topbar {
-    gap: 10px;
-    padding: 0 12px;
-    overflow-x: auto;
-  }
-
-  .sites {
-    display: none;
-  }
-
-  .json-output {
-    height: 60vh;
-  }
-}
-
-@media (max-width: 620px) {
-  .container {
-    padding: 14px 10px 28px;
-  }
-
-  .toolbar-actions {
-    margin-left: 0;
-    width: 100%;
-  }
-
-  .editor {
-    min-height: 190px;
-  }
-
-  .mode-group {
-    flex-wrap: wrap;
-  }
-}
-
 /* ---------- 表单控件（数学 / 字符串 / 时间戳工具） ---------- */
 .form-row {
   display: flex;
   flex-wrap: wrap;
   align-items: flex-end;
-  gap: 12px 14px;
+  gap: 8px 10px;
+  flex: 0 0 auto;
 }
 
 .field {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 5px;
   min-width: 0;
   flex: 0 1 auto;
 }
 
 .field.grow {
-  flex: 1 1 220px;
+  /* 基准值要小，否则两三个输入框就撑满一行被迫换行 */
+  flex: 1 1 140px;
 }
 
 .field-label {
   color: var(--text-secondary);
-  font-size: 12.5px;
+  font-size: 11.5px;
   font-weight: 600;
 }
 
 .input,
 .select {
-  height: 38px;
+  height: var(--ctl-h);
   padding: 0 11px;
   border: 1px solid var(--border);
   border-radius: 9px;
@@ -1014,16 +1053,20 @@ button {
 }
 
 .input.small {
-  width: 104px;
+  width: 88px;
+}
+
+.input.xsmall {
+  width: 68px;
 }
 
 .check-line {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  height: 38px;
+  height: var(--ctl-h);
   color: var(--text-secondary);
-  font-size: 13px;
+  font-size: 12.5px;
   white-space: nowrap;
   cursor: pointer;
 }
@@ -1037,7 +1080,7 @@ button {
 }
 
 .textarea {
-  min-height: 92px;
+  min-height: 56px;
   padding: 9px 11px;
   border: 1px solid var(--border);
   border-radius: 9px;
@@ -1070,32 +1113,73 @@ kbd {
 /* ---------- 模块卡片与结果框（数学 / 时间戳工具） ---------- */
 .module-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(330px, 1fr));
-  gap: 14px;
-  align-items: start;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+/* 6 个模块排成 2 行，每行都占满 12 格 */
+.module-grid .col-3 {
+  grid-column: span 3;
+}
+
+.module-grid .col-4 {
+  grid-column: span 4;
+}
+
+.module-grid .col-5 {
+  grid-column: span 5;
+}
+
+.module-grid .col-8 {
+  grid-column: span 8;
+}
+
+/* 时间戳页只有两张卡，各占一半 */
+.module-grid.two-col {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-rows: minmax(0, 1fr);
+}
+
+.module-grid.two-col .card.module {
+  grid-column: auto;
 }
 
 .card.module {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  padding: 16px;
+  gap: 6px;
+  padding: 12px;
+  overflow: hidden;
 }
 
-.card.module.span-2 {
-  grid-column: span 2;
+/* 卡片内部的两栏（例如日期计算的两组） */
+.split {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  min-height: 0;
+}
+
+.split > * {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
 }
 
 .module-head h2 {
-  margin: 0 0 4px;
-  font-size: 16px;
+  margin: 0 0 1px;
+  font-size: 15px;
 }
 
 .module-desc {
   margin: 0;
   color: var(--text-secondary);
-  font-size: 12.5px;
-  line-height: 1.6;
+  font-size: 12px;
+  line-height: 1.5;
 }
 
 .module-desc code {
@@ -1111,8 +1195,8 @@ kbd {
 }
 
 .result-box {
-  min-height: 42px;
-  max-height: 240px;
+  flex: 1 1 auto;
+  min-height: 34px;
   overflow: auto;
   padding: 10px 12px;
   border: 1px solid var(--border);
@@ -1139,6 +1223,7 @@ kbd {
 }
 
 .result-foot {
+  flex: 0 0 auto;
   display: flex;
   align-items: center;
   gap: 10px;
@@ -1152,11 +1237,62 @@ kbd {
   font-size: 12px;
 }
 
+/* 结果与附加信息并排：左边主结果、右边明细 */
+.result-split {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 8px;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+/* 时间戳页的明细行（本地时间 / UTC / 相对现在…） */
+.meta-list {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  margin: 0;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg-soft);
+}
+
+.meta-list > div {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.meta-list dt {
+  flex: 0 0 68px;
+  color: var(--text-secondary);
+  font-size: 11.5px;
+}
+
+.meta-list dd {
+  margin: 0;
+  min-width: 0;
+  font-family: var(--mono);
+  font-size: 12.5px;
+  overflow-wrap: anywhere;
+}
+
+.quick-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  flex: 0 0 auto;
+}
+
 /* ---------- 文本 Diff 对比 ---------- */
 .diff-view {
-  flex: 1;
-  min-height: 340px;
-  height: min(56vh, 620px);
+  flex: 1 1 auto;
+  min-height: 0;
   overflow: auto;
   border: 1px solid var(--border);
   border-radius: 10px;
@@ -1285,6 +1421,7 @@ kbd {
 
 /* ---------- 实时时间卡（时间戳工具） ---------- */
 .live-card {
+  flex: 0 0 auto;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -1321,22 +1458,6 @@ kbd {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-}
-
-.time-extra {
-  margin: 8px 0 0;
-  color: var(--text-secondary);
-  font-size: 12.5px;
-}
-
-@media (max-width: 860px) {
-  .card.module.span-2 {
-    grid-column: auto;
-  }
-
-  .diff-view {
-    height: 46vh;
-  }
 }
 
 /* ---------- 移动端不支持提示 ---------- */
@@ -1381,5 +1502,129 @@ kbd {
     color: var(--text-secondary);
     font-size: 14px;
     line-height: 1.7;
+  }
+}
+
+/* ---------- 响应式 ---------- */
+
+/* 屏幕不够大或不够高时退回「自然高度 + 页面滚动」：
+   一屏塞不下就别硬塞，宁可滚动，也不要把编辑器压到没法用。 */
+@media (max-width: 1180px), (max-height: 700px) {
+  .container {
+    overflow-y: auto;
+  }
+
+  .panel,
+  .text-grid,
+  .json-grid,
+  .module-grid,
+  .summary-grid {
+    flex: 0 0 auto;
+  }
+
+  .text-grid,
+  .json-grid,
+  .module-grid,
+  .module-grid.two-col,
+  .text-grid.regex-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-rows: none;
+    grid-auto-rows: min-content;
+  }
+
+  .module-grid .col-3,
+  .module-grid .col-4,
+  .module-grid .col-5,
+  .module-grid .col-8 {
+    grid-column: span 2;
+  }
+
+  .editor-card.output-card,
+  .full-span,
+  .regex-grid .regex-result-card {
+    grid-column: 1 / -1;
+  }
+
+  .editor {
+    min-height: 200px;
+    height: clamp(200px, 38vh, 420px);
+  }
+
+  .json-output,
+  .regex-result,
+  .regex-preview {
+    min-height: 240px;
+    max-height: 58vh;
+  }
+
+  .diff-view {
+    min-height: 260px;
+    height: 48vh;
+  }
+
+  .result-box {
+    min-height: 44px;
+    max-height: 220px;
+  }
+
+  .summary-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-auto-rows: min-content;
+  }
+
+  .tool-card,
+  .tool-card:nth-child(n + 5) {
+    grid-column: span 1;
+    min-height: 132px;
+  }
+}
+
+@media (max-width: 980px) {
+  .text-grid,
+  .json-grid,
+  .module-grid,
+  .module-grid.two-col,
+  .text-grid.regex-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .module-grid .col-3,
+  .module-grid .col-4,
+  .module-grid .col-5,
+  .module-grid .col-8 {
+    grid-column: auto;
+  }
+
+  .split {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .editor-card.output-card {
+    grid-column: auto;
+  }
+
+  .topbar {
+    gap: 10px;
+    padding: 0 12px;
+    overflow-x: auto;
+  }
+
+  .sites {
+    display: none;
+  }
+}
+
+@media (max-width: 620px) {
+  .container {
+    padding: 12px 10px 16px;
+  }
+
+  .toolbar-actions {
+    margin-left: 0;
+    width: 100%;
+  }
+
+  .mode-group {
+    flex-wrap: wrap;
   }
 }

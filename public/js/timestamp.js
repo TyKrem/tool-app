@@ -22,6 +22,16 @@
     box.classList.add("muted");
   }
 
+  function setMeta(id, text) {
+    $(id).textContent = text;
+  }
+
+  function clearMeta(ids) {
+    ids.forEach(function (id) {
+      setMeta(id, "—");
+    });
+  }
+
   document.querySelectorAll("[data-copy]").forEach(function (button) {
     button.addEventListener("click", function () {
       var box = $(button.getAttribute("data-copy"));
@@ -67,15 +77,20 @@
     var millis = Core.parseLocalInput($("time-input").value);
     if (Number.isNaN(millis)) {
       setResult("time-result", "请选择有效的时间（年-月-日 时:分）", true);
-      $("time-extra").textContent = "";
+      clearMeta(["time-meta-local", "time-meta-relative", "time-meta-unit"]);
       return;
     }
     var unit = $("time-unit").value;
     var stamp = unit === "seconds" ? Math.floor(millis / 1000) : millis;
     setResult("time-result", String(stamp));
-    $("time-extra").textContent =
-      "对应 " + Core.formatTime(millis, { withMillis: true }) + "（" + Core.relativeText(millis) + "）· 单位：" +
-      (unit === "seconds" ? "秒级时间戳（10 位）" : "毫秒级时间戳（13 位）");
+    setMeta("time-meta-local", Core.formatTime(millis, { withMillis: true }));
+    setMeta("time-meta-relative", Core.relativeText(millis));
+    setMeta("time-meta-unit", unit === "seconds" ? "秒级 · 10 位" : "毫秒级 · 13 位");
+  }
+
+  function useTime(millis) {
+    $("time-input").value = Core.toLocalInput(millis);
+    convertTime();
   }
 
   $("time-run").addEventListener("click", convertTime);
@@ -85,9 +100,24 @@
   $("time-input").addEventListener("change", function () {
     if ($("time-input").value) convertTime();
   });
-  $("time-now").addEventListener("click", function () {
-    $("time-input").value = Core.toLocalInput(Date.now());
-    convertTime();
+
+  // 常用时间一键填入：现在 / 今天 0 点 / 昨天 0 点 / 明天 0 点 / 7 天后
+  document.querySelectorAll("[data-quick]").forEach(function (button) {
+    button.addEventListener("click", function () {
+      var now = new Date();
+      var dayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+      var day = 86400000;
+      var map = {
+        now: now.getTime(),
+        today: dayStart,
+        yesterday: dayStart - day,
+        tomorrow: dayStart + day,
+        plus7: dayStart + 7 * day,
+      };
+      var target = map[button.getAttribute("data-quick")];
+      if (target === undefined) return;
+      useTime(target);
+    });
   });
 
   /* ---------- 时间戳 → 时间 ---------- */
@@ -95,7 +125,7 @@
     var raw = $("stamp-input").value;
     if (!raw.trim()) {
       setEmpty("stamp-result", "等待输入…");
-      $("stamp-extra").textContent = "";
+      clearMeta(["stamp-meta-utc", "stamp-meta-relative", "stamp-meta-unit"]);
       return;
     }
     try {
@@ -104,16 +134,23 @@
       // 手动选了单位但位数明显不符时，把下拉同步成实际用的单位，避免下次又猜错
       if ($("stamp-unit").value && $("stamp-unit").value !== parsed.unit) $("stamp-unit").value = parsed.unit;
       setResult("stamp-result", Core.formatTime(parsed.millis, { withMillis: parsed.unit === "milliseconds" }));
-      var stamp = parsed.unit === "seconds" ? String(parsed.millis / 1000) : String(parsed.millis);
-      $("stamp-extra").textContent =
-        "按" + (parsed.unit === "seconds" ? "秒" : "毫秒") + "解析 · UTC " +
-        Core.formatTime(parsed.millis, { withMillis: true, timeZone: "UTC" }) +
-        " · 相对现在：" + Core.relativeText(parsed.millis) + " · 原始值 " + stamp;
+      setMeta("stamp-meta-utc", Core.formatTime(parsed.millis, { withMillis: true, timeZone: "UTC" }));
+      setMeta("stamp-meta-relative", Core.relativeText(parsed.millis));
+      setMeta("stamp-meta-unit", parsed.unit === "seconds" ? "秒级 · 10 位" : "毫秒级 · 13 位");
     } catch (err) {
       setResult("stamp-result", err.message, true);
-      $("stamp-extra").textContent = "";
+      clearMeta(["stamp-meta-utc", "stamp-meta-relative", "stamp-meta-unit"]);
     }
   }
+
+  document.querySelectorAll("[data-stamp]").forEach(function (button) {
+    button.addEventListener("click", function () {
+      var millis = button.getAttribute("data-stamp") === "zero" ? 0 : Date.now();
+      $("stamp-unit").value = "milliseconds";
+      $("stamp-input").value = String(millis);
+      convertStamp();
+    });
+  });
 
   $("stamp-run").addEventListener("click", convertStamp);
   $("stamp-unit").addEventListener("change", convertStamp);

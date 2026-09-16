@@ -6,7 +6,7 @@
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <title>数学工具 · 工具汇总</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%2338bdf8' d='M8 3h2v8h4V3h2v10H2V3h2v8h2zM2 15h12v2H2zM2 19h20v2H2zM16 3h6v2h-4v2h3v2h-3v2h4v2h-6z'/%3E%3C/svg%3E">
-  <link rel="stylesheet" href="/css/style.css?v=20260916">
+  <link rel="stylesheet" href="/css/style.css?v=20260916e">
 </head>
 <body>
   <header class="topbar">
@@ -37,10 +37,10 @@
       </div>
 
       <div class="module-grid">
-        <section class="card module">
+        <section class="card module col-3">
           <div class="module-head">
             <h2>文本计算</h2>
-            <p class="module-desc">支持 <code>+ - * / % ^</code>、括号和小数，例如 <code>(1 + 2.5) * 3</code>。不使用 eval，按运算符优先级解析。</p>
+            <p class="module-desc">支持 <code>+ - * / % ^</code>、括号与小数，按优先级解析，不用 eval。</p>
           </div>
           <div class="form-row">
             <label class="field grow">
@@ -51,15 +51,15 @@
           </div>
           <div class="result-box muted" id="calc-result">等待输入…</div>
           <div class="result-foot">
-            <span class="hint">回车即可计算 · <kbd>Ctrl</kbd>/<kbd>⌘</kbd> + <kbd>Enter</kbd> 也行</span>
+            <span class="hint">回车即可计算</span>
             <button class="btn small" data-copy="calc-result" type="button">复制结果</button>
           </div>
         </section>
 
-        <section class="card module span-2">
+        <section class="card module col-5">
           <div class="module-head">
             <h2>进制转换</h2>
-            <p class="module-desc">支持 2–36 进制整数，内部用 BigInt 换算，超大整数也不会丢精度。改任意一边都会自动换算，也可以用“交换”把结果挪回左边接着算。</p>
+            <p class="module-desc">支持 2–36 进制整数，用 BigInt 换算不丢精度；改任意一边都会自动重算。</p>
           </div>
           <div class="form-row">
             <label class="field grow">
@@ -68,22 +68,29 @@
             </label>
             <label class="field">
               <span class="field-label">A 的进制</span>
-              <input id="base-a" class="input small" type="number" min="2" max="36" value="16">
+              <input id="base-a" class="input xsmall" type="number" min="2" max="36" value="16">
             </label>
-            <button class="btn" id="base-swap" type="button">&#8646; 交换</button>
+            <button class="btn" id="base-swap" type="button" title="交换左右两侧的数值与进制">&#8646;</button>
             <label class="field grow">
               <span class="field-label">数值 B（结果）</span>
               <input id="base-value-b" class="input" type="text" spellcheck="false" autocomplete="off" placeholder="转换结果">
             </label>
             <label class="field">
               <span class="field-label">B 的进制</span>
-              <input id="base-b" class="input small" type="number" min="2" max="36" value="10">
+              <input id="base-b" class="input xsmall" type="number" min="2" max="36" value="10">
             </label>
           </div>
-          <p class="module-desc" id="base-hint">例：A 填 FF、进制 16，B 就会显示 10 进制的 255。</p>
+          <div class="meta-list" aria-label="常用进制对照">
+            <div><dt>2 进制</dt><dd id="base-ref-2">—</dd></div>
+            <div><dt>8 进制</dt><dd id="base-ref-8">—</dd></div>
+            <div><dt>10 进制</dt><dd id="base-ref-10">—</dd></div>
+            <div><dt>16 进制</dt><dd id="base-ref-16">—</dd></div>
+            <div><dt>36 进制</dt><dd id="base-ref-36">—</dd></div>
+          </div>
+          <p class="module-desc" id="base-hint">例：A 填 FF、进制 16，B 显示 10 进制的 255。</p>
         </section>
 
-        <section class="card module">
+        <section class="card module col-4">
           <div class="module-head">
             <h2>随机数生成</h2>
             <p class="module-desc">在指定范围内生成随机整数；勾选“不重复”可当作抽号用。</p>
@@ -111,26 +118,26 @@
           </div>
         </section>
 
-        <section class="card module span-2">
+        <section class="card module col-5">
           <div class="module-head">
             <h2>日期计算</h2>
-            <p class="module-desc">算两个日期相差多少天，或给某个日期加减天数。按自然日计算，不受时区、夏令时影响。</p>
+            <p class="module-desc">算两个日期相差多少天，或给某个日期加减天数；按自然日计算，不受时区与夏令时影响。</p>
           </div>
           <div class="form-row">
-            <label class="field">
+            <label class="field grow">
               <span class="field-label">开始日期</span>
               <input id="date-start" class="input" type="date">
             </label>
-            <label class="field">
+            <label class="field grow">
               <span class="field-label">结束日期</span>
               <input id="date-end" class="input" type="date">
             </label>
-            <button class="btn" id="date-end-today" type="button">结束日期填今天</button>
-            <button class="btn primary" id="date-diff-run" type="button">算相差天数</button>
+            <button class="btn" id="date-end-today" type="button">今天</button>
+            <button class="btn primary" id="date-diff-run" type="button">算天数差</button>
           </div>
           <div class="result-box muted" id="date-diff-result">等待输入…</div>
           <div class="form-row">
-            <label class="field">
+            <label class="field grow">
               <span class="field-label">基准日期</span>
               <input id="date-base" class="input" type="date">
             </label>
@@ -142,72 +149,53 @@
           </div>
           <div class="result-box muted" id="date-add-result">等待输入…</div>
           <div class="result-foot">
-            <span class="hint">例：基准日期 2026-01-01 加 30 天 → 2026-01-31</span>
+            <span class="hint">按自然日计算</span>
             <button class="btn small" data-copy="date-diff-result" type="button">复制天数</button>
             <button class="btn small" data-copy="date-add-result" type="button">复制新日期</button>
           </div>
         </section>
 
-        <section class="card module">
+        <section class="card module col-4">
           <div class="module-head">
-            <h2>随机抽取</h2>
-            <p class="module-desc">从每行一项的候选内容里随机抽若干个，抽奖、点名都能用。</p>
+            <h2>随机抽取 / 排序</h2>
+            <p class="module-desc">每行一项：抽若干个（抽奖、点名），或整体打乱顺序（随机分组）。</p>
           </div>
-          <label class="field">
-            <span class="field-label">候选内容（每行一项）</span>
-            <textarea id="pick-items" class="textarea" spellcheck="false" placeholder="例如：&#10;苹果&#10;香蕉&#10;橙子"></textarea>
-          </label>
+          <div class="split">
+            <label class="field">
+              <span class="field-label">候选内容（每行一项）</span>
+              <textarea id="pick-items" class="textarea" spellcheck="false" placeholder="例如：&#10;苹果&#10;香蕉&#10;橙子"></textarea>
+            </label>
+            <div class="result-box muted" id="pick-result">等待生成…</div>
+          </div>
           <div class="form-row">
             <label class="field">
               <span class="field-label">抽取个数</span>
-              <input id="pick-count" class="input small" type="number" min="1" max="10000" value="1" step="1">
+              <input id="pick-count" class="input xsmall" type="number" min="1" max="10000" value="1" step="1">
             </label>
-            <label class="check-line"><input id="pick-unique" type="checkbox" checked>抽取不重复</label>
+            <label class="check-line"><input id="pick-unique" type="checkbox" checked>不重复</label>
             <button class="btn primary" id="pick-run" type="button">抽取</button>
-          </div>
-          <div class="result-box muted" id="pick-result">等待生成…</div>
-          <div class="result-foot">
-            <span class="hint" id="pick-hint">结果每行一项</span>
-            <button class="btn small" data-copy="pick-result" type="button">复制结果</button>
+            <button class="btn" id="shuffle-run" type="button">打乱</button>
+            <button class="btn small" data-copy="pick-result" type="button">复制</button>
           </div>
         </section>
 
-        <section class="card module">
-          <div class="module-head">
-            <h2>随机排序</h2>
-            <p class="module-desc">把每行一项的内容打乱顺序，用于随机分组、抽签排序。</p>
-          </div>
-          <label class="field">
-            <span class="field-label">待排序内容（每行一项）</span>
-            <textarea id="shuffle-items" class="textarea" spellcheck="false" placeholder="例如：&#10;张三&#10;李四&#10;王五"></textarea>
-          </label>
-          <div class="form-row">
-            <button class="btn primary" id="shuffle-run" type="button">随机排序</button>
-          </div>
-          <div class="result-box muted" id="shuffle-result">等待生成…</div>
-          <div class="result-foot">
-            <span class="hint">结果每行一项，可反复点</span>
-            <button class="btn small" data-copy="shuffle-result" type="button">复制结果</button>
-          </div>
-        </section>
-
-        <section class="card module span-2">
+        <section class="card module col-3">
           <div class="module-head">
             <h2>UUID 生成</h2>
-            <p class="module-desc">生成标准 v4 UUID，可一次生成多个；支持去掉连字符或全大写，方便塞进 SQL、配置里。</p>
+            <p class="module-desc">生成标准 v4 UUID，可批量生成，支持去掉连字符或全大写。</p>
           </div>
           <div class="form-row">
             <label class="field">
               <span class="field-label">生成个数</span>
               <input id="uuid-count" class="input small" type="number" min="1" max="10000" value="1" step="1">
             </label>
-            <label class="check-line"><input id="uuid-hyphen" type="checkbox" checked>包含连字符</label>
-            <label class="check-line"><input id="uuid-upper" type="checkbox">英文大写</label>
-            <button class="btn primary" id="uuid-run" type="button">生成 UUID</button>
+            <label class="check-line"><input id="uuid-hyphen" type="checkbox" checked>连字符</label>
+            <label class="check-line"><input id="uuid-upper" type="checkbox">大写</label>
+            <button class="btn primary" id="uuid-run" type="button">生成</button>
           </div>
           <div class="result-box muted" id="uuid-result">等待生成…</div>
           <div class="result-foot">
-            <span class="hint">优先用浏览器的 crypto.randomUUID，随机性更好</span>
+            <span class="hint">优先用浏览器 crypto.randomUUID</span>
             <button class="btn small" data-copy="uuid-result" type="button">复制结果</button>
           </div>
         </section>

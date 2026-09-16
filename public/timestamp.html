@@ -6,7 +6,7 @@
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <title>时间戳工具 · 工具汇总</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%2338bdf8' d='M8 3h2v8h4V3h2v10H2V3h2v8h2zM2 15h12v2H2zM2 19h20v2H2zM16 3h6v2h-4v2h3v2h-3v2h4v2h-6z'/%3E%3C/svg%3E">
-  <link rel="stylesheet" href="/css/style.css?v=20260916">
+  <link rel="stylesheet" href="/css/style.css?v=20260916e">
 </head>
 <body>
   <header class="topbar">
@@ -33,7 +33,7 @@
     <section class="panel active">
       <div class="panel-head">
         <h1>时间戳工具</h1>
-        <p class="desc">时间与秒级、毫秒级时间戳互相转换，都按本机时区计算（<span id="zone-label">检测中…</span>）。顶部实时显示当前时间，可切换毫秒、复制或暂停。</p>
+        <p class="desc">时间与秒级 / 毫秒级时间戳互相转换，按本机时区计算（<span id="zone-label">检测中…</span>）；顶部实时显示当前时间。</p>
       </div>
 
       <div class="card live-card">
@@ -49,11 +49,11 @@
         </div>
       </div>
 
-      <div class="module-grid">
+      <div class="module-grid two-col">
         <section class="card module">
           <div class="module-head">
             <h2>时间 → 时间戳</h2>
-            <p class="module-desc">选好时间，再挑要秒还是毫秒，点“转换”即出结果。右侧下拉切换单位会自动重算。</p>
+            <p class="module-desc">选好时间再挑单位，点“转换”出结果；切换单位会自动重算。</p>
           </div>
           <div class="form-row">
             <label class="field grow">
@@ -67,11 +67,21 @@
                 <option value="milliseconds">毫秒</option>
               </select>
             </label>
-            <button class="btn" id="time-now" type="button">填入当前时间</button>
             <button class="btn primary" id="time-run" type="button">转换</button>
           </div>
+          <div class="quick-row">
+            <button class="btn small" type="button" data-quick="now">现在</button>
+            <button class="btn small" type="button" data-quick="today">今天 0 点</button>
+            <button class="btn small" type="button" data-quick="yesterday">昨天 0 点</button>
+            <button class="btn small" type="button" data-quick="tomorrow">明天 0 点</button>
+            <button class="btn small" type="button" data-quick="plus7">7 天后</button>
+          </div>
           <div class="result-box muted" id="time-result">等待输入…</div>
-          <p class="time-extra" id="time-extra"></p>
+          <dl class="meta-list">
+            <div><dt>本地时间</dt><dd id="time-meta-local">—</dd></div>
+            <div><dt>相对现在</dt><dd id="time-meta-relative">—</dd></div>
+            <div><dt>时间戳单位</dt><dd id="time-meta-unit">—</dd></div>
+          </dl>
           <div class="result-foot">
             <span class="hint">按本机时区换算，秒级取整</span>
             <button class="btn small" data-copy="time-result" type="button">复制时间戳</button>
@@ -81,7 +91,7 @@
         <section class="card module">
           <div class="module-head">
             <h2>时间戳 → 时间</h2>
-            <p class="module-desc">粘贴 10 位秒级或 13 位毫秒级时间戳都行，按位数自动判断，也可以在单位下拉里手动指定。</p>
+            <p class="module-desc">10 位秒级、13 位毫秒级都行；按位数自动判断，也能手动指定单位。</p>
           </div>
           <div class="form-row">
             <label class="field grow">
@@ -98,8 +108,16 @@
             </label>
             <button class="btn primary" id="stamp-run" type="button">转换</button>
           </div>
+          <div class="quick-row">
+            <button class="btn small" type="button" data-stamp="now">当前时间戳</button>
+            <button class="btn small" type="button" data-stamp="zero">0（1970-01-01）</button>
+          </div>
           <div class="result-box muted" id="stamp-result">等待输入…</div>
-          <p class="time-extra" id="stamp-extra"></p>
+          <dl class="meta-list">
+            <div><dt>UTC 时间</dt><dd id="stamp-meta-utc">—</dd></div>
+            <div><dt>相对现在</dt><dd id="stamp-meta-relative">—</dd></div>
+            <div><dt>解析单位</dt><dd id="stamp-meta-unit">—</dd></div>
+          </dl>
           <div class="result-foot">
             <span class="hint">输入后自动转换，负数表示 1970 年之前</span>
             <button class="btn small" data-copy="stamp-result" type="button">复制时间</button>
