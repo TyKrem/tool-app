@@ -101,3 +101,8 @@ node --test test/*.test.js   # 使用支持 node:test 的当前 Node，无额外
 `public/js/*-core.js` 是各工具的核心逻辑，写成浏览器和 Node 都能加载的形式
 （页面挂到 `window.<名字>Core`，Node 走 `module.exports`），所以不用引 jsdom
 就能直接测。
+
+## 主题切换
+
+页面提供浅色、深色与跟随系统三档切换，按钮可通过键盘操作；刷新保留选择。
+在同一浏览器访问本站及其子站时共用主题偏好，偏好不包含登录身份或访问码。
