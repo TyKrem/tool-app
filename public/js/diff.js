@@ -1,3 +1,4 @@
+'use strict';
 (function () {
   "use strict";
 
@@ -10,6 +11,7 @@
 
   var state = {
     groups: null,
+    stale: false,
     approximate: false,
     expandAll: false,
     expanded: Object.create(null),
@@ -39,6 +41,8 @@
   function updateHints() {
     $("diff-a-hint").textContent = countText(edA.ta.value);
     $("diff-b-hint").textContent = countText(edB.ta.value);
+    state.stale = true;
+    $("diff-copy").disabled = true;
     if (state.groups) $("diff-result-hint").textContent = "内容已变化，点击“开始对比”刷新";
   }
 
@@ -116,7 +120,7 @@
   function rowHtml(row) {
     if (row.type === "fold") {
       return (
-        '<div class="diff-row fold" data-key="' + row.key + '">' +
+        '<div class="diff-row fold" role="button" tabindex="0" data-key="' + row.key + '">' +
         '<span class="diff-sign">⋯</span>' +
         '<span class="diff-text">未变化的 ' + row.count + " 行已折叠，点击展开</span>" +
         "</div>"
@@ -146,8 +150,8 @@
     $("diff-rows").innerHTML = rows.map(rowHtml).join("") || '<div class="diff-empty">没有可显示的差异。</div>';
     $("diff-rows").classList.remove("hidden");
     $("diff-empty").classList.add("hidden");
-    $("diff-result-hint").textContent = statText(stat) + (state.approximate ? "（文本较大，已改用逐行对照，仅供参考）" : "");
-    $("diff-copy").disabled = false;
+    $("diff-result-hint").textContent = (state.stale ? "输入已变化，请重新对比。上次结果：" : "") + statText(stat) + (state.approximate ? "（文本较大，已改用逐行对照，仅供参考）" : "");
+    $("diff-copy").disabled = state.stale;
     $("diff-toggle").textContent = state.expandAll ? "只看差异" : "展开未变化";
   }
 
@@ -160,6 +164,7 @@
     }
     var result = Core.lineOps(Core.splitLines(edA.ta.value), Core.splitLines(edB.ta.value));
     state.groups = Core.groupOps(result.ops);
+    state.stale = false;
     state.approximate = result.approximate;
     state.expandAll = false;
     state.expanded = Object.create(null);
@@ -224,6 +229,14 @@
     }
   }
 
+  $("diff-rows").addEventListener("keydown", function (event) {
+    if (event.target.matches(".diff-row.fold") && (event.key === "Enter" || event.key === " ")) {
+      event.preventDefault(); event.target.click();
+    }
+  });
+  window.ToolKit.addDownload("diff-copy", function () {
+    return Core.toUnifiedText(state.groups);
+  }, "文本差异.diff");
   updateHints();
   resetResult();
 })();

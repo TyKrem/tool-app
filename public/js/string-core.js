@@ -1,3 +1,4 @@
+'use strict';
 /* 字符串转换工具的核心逻辑（转义字符串 / UTF-8 Hex / HTML 实体 / URL 编码）。
    浏览器里挂到 window.StringCore，Node 里走 module.exports，便于单测。 */
 (function (root, factory) {
@@ -149,11 +150,33 @@
     }
   }
 
+  function base64Encode(value) {
+    var bytes = utf8Bytes(value);
+    var chunks = [];
+    for (var offset = 0; offset < bytes.length; offset += 8192) {
+      chunks.push(String.fromCharCode.apply(null, bytes.slice(offset, offset + 8192)));
+    }
+    return btoa(chunks.join(''));
+  }
+
+  function base64Decode(value) {
+    var cleaned = String(value).replace(/\s/g, '');
+    if (!/^[A-Za-z0-9+/]*={0,2}$/.test(cleaned) || cleaned.length % 4 === 1) {
+      throw new Error('不是合法的 Base64 编码');
+    }
+    try {
+      var binary = atob(cleaned);
+      var bytes = Uint8Array.from(binary, function (character) { return character.charCodeAt(0); });
+      return new TextDecoder('utf-8', { fatal: true }).decode(bytes);
+    } catch (error) { throw new Error('Base64 无效或解码后不是 UTF-8 文本'); }
+  }
+
   // type: escape | hex | entity | url；reverse 为 true 时是"还原"
   function convert(type, value, reverse, allEntity) {
     if (type === 'escape') return reverse ? escapeDecode(value) : escapeEncode(value);
     if (type === 'hex') return reverse ? hexDecode(value) : hexEncode(value);
     if (type === 'entity') return reverse ? entityDecode(value) : entityEncode(value, allEntity);
+    if (type === 'base64') return reverse ? base64Decode(value) : base64Encode(value);
     if (type === 'url') return reverse ? urlDecode(value) : urlEncode(value);
     throw new Error('未知的转换类型');
   }
@@ -169,5 +192,7 @@
     urlEncode: urlEncode,
     urlDecode: urlDecode,
     convert: convert,
+    base64Encode: base64Encode,
+    base64Decode: base64Decode,
   };
 });

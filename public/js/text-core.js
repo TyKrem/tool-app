@@ -1,3 +1,4 @@
+'use strict';
 /* 文本工具的核心逻辑。浏览器里挂到 window.TextCore，Node 里走 module.exports，
    这样同一份代码既能在页面上跑，也能被 node:test 直接测，不用引 jsdom。 */
 (function (root, factory) {
@@ -12,7 +13,7 @@
 
   // 按行切分：末尾那个换行不算一行空行，但中间的空行要保留
   function splitLines(value) {
-    var lines = String(value || '').split('\n');
+    var lines = String(value || '').replace(/\r\n?/g, '\n').split('\n');
     if (lines.length > 1 && lines[lines.length - 1] === '') lines.pop();
     return lines;
   }
@@ -51,8 +52,36 @@
     return s;
   }
 
+  function prepareLines(value, options) {
+    options = options || {};
+    if (!value) return [];
+    var lines = splitLines(value);
+    if (options.trim) lines = lines.map(function (line) { return line.trim(); });
+    if (options.skipEmpty) lines = lines.filter(function (line) { return line.trim() !== ''; });
+    return lines;
+  }
+
+  function processLines(mode, left, right, options) {
+    var leftLines = prepareLines(left, options);
+    var rightLines = prepareLines(right, options);
+    var output;
+    if (mode === 'dedupe') output = uniqueInOrder(leftLines);
+    else if (mode === 'union') output = uniqueInOrder(leftLines.concat(rightLines));
+    else {
+      var source = mode === 'reverseSubtract' ? rightLines : leftLines;
+      var other = setOf(mode === 'reverseSubtract' ? leftLines : rightLines);
+      output = uniqueInOrder(source).filter(function (line) {
+        return mode === 'intersect' ? !!other[line] : !other[line];
+      });
+    }
+    if (options && options.sort) output.sort(function (left, right) { return left.localeCompare(right, 'zh-CN', { numeric: true }); });
+    return output;
+  }
+
   return {
     splitLines: splitLines,
+    prepareLines: prepareLines,
+    processLines: processLines,
     uniqueInOrder: uniqueInOrder,
     countsBy: countsBy,
     setOf: setOf,

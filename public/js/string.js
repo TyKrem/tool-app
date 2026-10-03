@@ -1,3 +1,4 @@
+'use strict';
 (function () {
   "use strict";
 
@@ -29,6 +30,10 @@
       placeholderReverse: "解码示例：&lt;a&gt;链接&lt;/a&gt;",
       tip: '只转义 & < > " \' 这五个特殊字符，勾选“全部转实体”可把每个字符都写成 &#xXXXX;。',
       tipReverse: "支持具名实体与 &#123; / &#x1F600; 这类数字实体。",
+    },
+    base64: {
+      label: "Base64", placeholder: "输入中文、英文或 emoji…", placeholderReverse: "例如：5L2g5aW9",
+      tip: "将 UTF-8 文本编码为 Base64，支持中文和 emoji。", tipReverse: "将 Base64 还原为 UTF-8 文本，忽略换行和空白。",
     },
     url: {
       label: "URL 编码",
@@ -77,8 +82,9 @@
     if (!value) {
       edOut.ta.value = "";
       refreshEditor(edOut);
-      setStatus("等待输入");
+      setStatus(state.reverse ? TYPES[state.type].tipReverse : TYPES[state.type].tip);
       $("string-copy").disabled = true;
+      $("string-swap").disabled = true;
       return true;
     }
     try {
@@ -86,13 +92,15 @@
       edOut.ta.value = result;
       refreshEditor(edOut);
       setStatus("转换完成 · " + describe(result));
-      $("string-copy").disabled = false;
+      $("string-copy").disabled = !result;
+      $("string-swap").disabled = !result;
       return true;
     } catch (err) {
       edOut.ta.value = "";
       refreshEditor(edOut);
       setStatus(err.message, true);
       $("string-copy").disabled = true;
+      $("string-swap").disabled = true;
       if (showToast) toast("转换失败：" + err.message);
       return false;
     }
@@ -141,6 +149,7 @@
     updateInputHint();
     setStatus("等待输入");
     $("string-copy").disabled = true;
+      $("string-swap").disabled = true;
     edIn.ta.focus();
   });
 
@@ -152,6 +161,15 @@
     copyText(edOut.ta.value, "已复制输出内容");
   });
 
+  $("string-swap").addEventListener("click", function () {
+    if (!edOut.ta.value) return;
+    edIn.ta.value = edOut.ta.value;
+    state.reverse = !state.reverse;
+    $("string-reverse").checked = state.reverse;
+    refreshEditor(edIn); updateInputHint(); switchType();
+  });
+  window.ToolKit.bindRun([edIn], function () { convert(true); });
+  window.ToolKit.addDownload("string-copy", function () { return edOut.ta.value; }, "转换结果.txt");
   updateInputHint();
   switchType();
 })();

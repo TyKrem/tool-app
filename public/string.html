@@ -1,26 +1,26 @@
 <!doctype html>
-<html lang="zh-CN" data-theme="light">
+<html lang="zh-CN">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <title>字符串工具 · 工具汇总</title>
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%2338bdf8' d='M8 3h2v8h4V3h2v10H2V3h2v8h2zM2 15h12v2H2zM2 19h20v2H2zM16 3h6v2h-4v2h3v2h-3v2h4v2h-6z'/%3E%3C/svg%3E">
-  <link rel="stylesheet" href="/css/style.css?v=20260916e">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%230b63ce' d='M8 3h2v8h4V3h2v10H2V3h2v8h2zM2 15h12v2H2zM2 19h20v2H2zM16 3h6v2h-4v2h3v2h-3v2h4v2h-6z'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="/css/style.css?v=20261003a">
 </head>
 <body>
   <header class="topbar">
     <a class="brand home-link" href="/">
-      <span class="brand-icon">&#128736;</span>
+      <span class="brand-icon" aria-hidden="true">◇</span>
       <span class="brand-name">工具汇总</span>
     </a>
-    <nav class="page-nav">
+    <nav class="page-nav" aria-label="工具导航">
       <a href="/text.html">文本工具</a>
       <a href="/json.html">JSON 工具</a>
       <a href="/regex.html">正则工具</a>
       <a href="/diff.html">Diff 对比</a>
       <a href="/math.html">数学工具</a>
-      <span class="current">字符串工具</span>
+      <span class="current" aria-current="page">字符串工具</span>
       <a href="/timestamp.html">时间戳工具</a>
     </nav>
     <nav class="sites">
@@ -32,7 +32,7 @@
     <section class="panel active">
       <div class="panel-head">
         <h1>字符串工具</h1>
-        <p class="desc">转义字符串、UTF-8 Hex、HTML 实体、URL 编码四种转换，都能双向还原。边输入边出结果，勾选“反向还原”就按解码处理。</p>
+        <p class="desc">转义字符串、UTF-8 Hex、HTML 实体、URL 编码、Base64 五种转换，都能双向还原。边输入边出结果，勾选“反向还原”就按解码处理。</p>
       </div>
 
       <div class="card toolbar-card">
@@ -43,11 +43,13 @@
             <button class="seg-btn" type="button" data-type="hex">Hex 字符串</button>
             <button class="seg-btn" type="button" data-type="entity">HTML 实体</button>
             <button class="seg-btn" type="button" data-type="url">URL 编码</button>
+            <button class="seg-btn" type="button" data-type="base64">Base64</button>
           </div>
         </div>
         <label class="check-line"><input id="string-reverse" type="checkbox">反向还原</label>
         <label class="check-line hidden" id="string-all-entity-wrap"><input id="string-all-entity" type="checkbox">全部转实体</label>
         <div class="toolbar-actions">
+          <button class="btn" id="string-swap" type="button" disabled>结果反向转换</button>
           <button class="btn primary" id="string-run" type="button">转换</button>
           <button class="btn" id="string-clear" type="button">清空</button>
         </div>
@@ -75,15 +77,8 @@
   </main>
 
   <div id="toast" class="toast hidden" role="status"></div>
-  <div class="mobile-block">
-    <div class="mobile-card">
-      <p class="mobile-emoji">📱</p>
-      <h2>不支持移动端</h2>
-      <p>当前页面暂不支持移动端，请使用电脑浏览器访问。</p>
-    </div>
-  </div>
-  <script src="/js/common.js"></script>
-  <script src="/js/string-core.js"></script>
-  <script src="/js/string.js"></script>
+  <script src="/js/common.js?v=20261003a"></script>
+  <script src="/js/string-core.js?v=20261003a"></script>
+  <script src="/js/string.js?v=20261003a"></script>
 </body>
 </html>

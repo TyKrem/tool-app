@@ -1,3 +1,4 @@
+'use strict';
 (function () {
   "use strict";
 
@@ -6,7 +7,7 @@
   var copyText = window.ToolKit.copyText;
   var Core = window.TimestampCore;
 
-  var state = { milliseconds: false, paused: false };
+  var state = { milliseconds: false, paused: false, liveMillis: Date.now() };
 
   function setResult(id, text, isError) {
     var box = $(id);
@@ -48,6 +49,7 @@
     if (state.paused) return;
     var now = new Date();
     var millis = now.getTime();
+    state.liveMillis = millis;
     $("live-time").textContent = Core.formatTime(millis, { withMillis: state.milliseconds });
     $("live-stamp").textContent =
       (state.milliseconds ? "毫秒" : "秒") + "级时间戳：" + (state.milliseconds ? millis : Math.floor(millis / 1000));
@@ -68,7 +70,7 @@
   });
 
   $("live-copy").addEventListener("click", function () {
-    var millis = Date.now();
+    var millis = state.liveMillis;
     copyText(String(state.milliseconds ? millis : Math.floor(millis / 1000)), "已复制当前时间戳");
   });
 
@@ -85,7 +87,7 @@
     setResult("time-result", String(stamp));
     setMeta("time-meta-local", Core.formatTime(millis, { withMillis: true }));
     setMeta("time-meta-relative", Core.relativeText(millis));
-    setMeta("time-meta-unit", unit === "seconds" ? "秒级 · 10 位" : "毫秒级 · 13 位");
+    setMeta("time-meta-unit", (unit === "seconds" ? "秒级" : "毫秒级") + " · " + String(stamp).replace("-", "").length + " 位");
   }
 
   function useTime(millis) {
@@ -95,10 +97,10 @@
 
   $("time-run").addEventListener("click", convertTime);
   $("time-unit").addEventListener("change", function () {
-    if ($("time-input").value) convertTime();
+    convertTime();
   });
   $("time-input").addEventListener("change", function () {
-    if ($("time-input").value) convertTime();
+    convertTime();
   });
 
   // 常用时间一键填入：现在 / 今天 0 点 / 昨天 0 点 / 明天 0 点 / 7 天后
@@ -106,13 +108,13 @@
     button.addEventListener("click", function () {
       var now = new Date();
       var dayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
-      var day = 86400000;
+      function shiftedDay(offset) { return new Date(now.getFullYear(), now.getMonth(), now.getDate() + offset).getTime(); }
       var map = {
         now: now.getTime(),
         today: dayStart,
-        yesterday: dayStart - day,
-        tomorrow: dayStart + day,
-        plus7: dayStart + 7 * day,
+        yesterday: shiftedDay(-1),
+        tomorrow: shiftedDay(1),
+        plus7: shiftedDay(7),
       };
       var target = map[button.getAttribute("data-quick")];
       if (target === undefined) return;
@@ -136,7 +138,7 @@
       setResult("stamp-result", Core.formatTime(parsed.millis, { withMillis: parsed.unit === "milliseconds" }));
       setMeta("stamp-meta-utc", Core.formatTime(parsed.millis, { withMillis: true, timeZone: "UTC" }));
       setMeta("stamp-meta-relative", Core.relativeText(parsed.millis));
-      setMeta("stamp-meta-unit", parsed.unit === "seconds" ? "秒级 · 10 位" : "毫秒级 · 13 位");
+      setMeta("stamp-meta-unit", (parsed.unit === "seconds" ? "秒级" : "毫秒级") + " · " + raw.trim().replace("-", "").length + " 位");
     } catch (err) {
       setResult("stamp-result", err.message, true);
       clearMeta(["stamp-meta-utc", "stamp-meta-relative", "stamp-meta-unit"]);

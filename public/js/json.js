@@ -1,3 +1,4 @@
+'use strict';
 (function () {
   "use strict";
 
@@ -9,6 +10,7 @@
 
   var jsonState = {
     data: null,
+    valid: false,
     mode: "pretty", // pretty | compact
     rows: [],
     collapsed: new Set(),
@@ -28,11 +30,16 @@
 
   var jsonTimer = null;
   function scheduleJsonParse() {
+    jsonState.valid = false;
+    $("json-copy").disabled = true;
+    $("json-b-hint").textContent = "正在解析…";
     clearTimeout(jsonTimer);
     jsonTimer = setTimeout(parseJsonInput, 260);
   }
 
   function parseJsonInput() {
+    clearTimeout(jsonTimer);
+    jsonState.valid = false;
     var raw = edJsonA.ta.value;
     jsonState.parseNote = "";
     if (!raw.trim()) {
@@ -56,7 +63,7 @@
       firstErr = e;
     }
 
-    if (data === null) {
+    if (firstErr) {
       jsonState.data = null;
       jsonState.rows = [];
       jsonState.collapsed.clear();
@@ -70,6 +77,7 @@
     }
 
     jsonState.data = data;
+    jsonState.valid = true;
     jsonState.rows = buildJsonRows(data);
     jsonState.collapsed.clear();
     $("json-copy").disabled = false;
@@ -206,7 +214,7 @@
 
   function renderJsonOutput() {
     var data = jsonState.data;
-    if (!data) return;
+    if (!jsonState.valid) return;
 
     if (jsonState.mode === "compact") {
       var compactText = JSON.stringify(data);
@@ -350,9 +358,14 @@
     return out;
   }
 
+  window.ToolKit.addDownload("json-copy", function () {
+    return JSON.stringify(jsonState.data, null, jsonState.mode === "compact" ? 0 : 2);
+  }, "格式化结果.json");
+  window.ToolKit.bindRun([edJsonA], parseJsonInput);
+
   jsonRowsEl.addEventListener("click", function (ev) {
     var btn = ev.target.closest ? ev.target.closest(".j-toggle") : null;
-    if (!btn || jsonState.mode !== "pretty" || !jsonState.data) return;
+    if (!btn || jsonState.mode !== "pretty" || !jsonState.valid) return;
     var idx = parseInt(btn.getAttribute("data-row"), 10);
     if (jsonState.collapsed.has(idx)) jsonState.collapsed.delete(idx);
     else jsonState.collapsed.add(idx);
@@ -378,7 +391,7 @@
   });
 
   $("json-expand").addEventListener("click", function () {
-    if (!jsonState.data) return;
+    if (!jsonState.valid) return;
     jsonState.mode = "pretty";
     jsonState.collapsed.clear();
     setJsonButtonState();
@@ -386,7 +399,7 @@
   });
 
   $("json-collapse").addEventListener("click", function () {
-    if (!jsonState.data) return;
+    if (!jsonState.valid) return;
     jsonState.mode = "pretty";
     jsonState.rows.forEach(function (r) {
       if (r.container) jsonState.collapsed.add(r.index);
@@ -396,7 +409,7 @@
   });
 
   $("json-copy").addEventListener("click", function () {
-    if (!jsonState.data) return;
+    if (!jsonState.valid) return;
     var text =
       jsonState.mode === "compact"
         ? JSON.stringify(jsonState.data)

@@ -1,21 +1,21 @@
 <!doctype html>
-<html lang="zh-CN" data-theme="light">
+<html lang="zh-CN">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <title>文本工具 · 工具汇总</title>
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%2338bdf8' d='M8 3h2v8h4V3h2v10H2V3h2v8h2zM2 15h12v2H2zM2 19h20v2H2zM16 3h6v2h-4v2h3v2h-3v2h4v2h-6z'/%3E%3C/svg%3E">
-  <link rel="stylesheet" href="/css/style.css?v=20260916e">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%230b63ce' d='M8 3h2v8h4V3h2v10H2V3h2v8h2zM2 15h12v2H2zM2 19h20v2H2zM16 3h6v2h-4v2h3v2h-3v2h4v2h-6z'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="/css/style.css?v=20261003a">
 </head>
 <body>
   <header class="topbar">
     <a class="brand home-link" href="/">
-      <span class="brand-icon">&#128736;</span>
+      <span class="brand-icon" aria-hidden="true">◇</span>
       <span class="brand-name">工具汇总</span>
     </a>
-    <nav class="page-nav">
-      <span class="current">文本工具</span>
+    <nav class="page-nav" aria-label="工具导航">
+      <span class="current" aria-current="page">文本工具</span>
       <a href="/json.html">JSON 工具</a>
       <a href="/regex.html">正则工具</a>
       <a href="/diff.html">Diff 对比</a>
@@ -32,7 +32,7 @@
     <section class="panel active">
       <div class="panel-head">
         <h1>文本工具</h1>
-        <p class="desc">按行处理：去重 / 交集 / 并集。去重高亮 A 中重复行，交集高亮 A、B 中相同行；行号与高亮实时显示，C 为只读结果。</p>
+        <p class="desc">按行去重、合并或找差异。保留原顺序，可选择去掉首尾空白、过滤空行、排序；Ctrl / ⌘ + Enter 执行。</p>
       </div>
 
       <div class="card toolbar-card">
@@ -42,9 +42,15 @@
             <button class="seg-btn active" type="button" data-mode="dedupe">去重</button>
             <button class="seg-btn" type="button" data-mode="intersect">交集</button>
             <button class="seg-btn" type="button" data-mode="union">并集</button>
+            <button class="seg-btn" type="button" data-mode="subtract">A − B</button>
+            <button class="seg-btn" type="button" data-mode="reverseSubtract">B − A</button>
           </div>
         </div>
+        <label class="check-line"><input id="text-trim" type="checkbox">去首尾空白</label>
+        <label class="check-line"><input id="text-empty" type="checkbox">过滤空行</label>
+        <label class="check-line"><input id="text-sort" type="checkbox">排序</label>
         <div class="toolbar-actions">
+          <button class="btn" id="text-swap" type="button">交换 A / B</button>
           <button class="btn primary" id="text-execute" type="button">执行</button>
           <button class="btn" id="text-clear" type="button">清空</button>
         </div>
@@ -71,7 +77,7 @@
           <div class="ed-head">
             <span class="ed-name">C 输出 <em class="readonly-tag">只读</em></span>
             <span class="ed-hint" id="hintC">点击“执行”后生成</span>
-            <button class="btn small" id="text-copy" type="button">复制 C</button>
+            <button class="btn small" id="text-copy" type="button" disabled>复制 C</button>
           </div>
           <div id="editorC" class="editor output" data-kind="C"></div>
         </div>
@@ -80,15 +86,8 @@
   </main>
 
   <div id="toast" class="toast hidden" role="status"></div>
-  <div class="mobile-block">
-    <div class="mobile-card">
-      <p class="mobile-emoji">📱</p>
-      <h2>不支持移动端</h2>
-      <p>当前页面暂不支持移动端，请使用电脑浏览器访问。</p>
-    </div>
-  </div>
-  <script src="/js/common.js"></script>
-  <script src="/js/text-core.js"></script>
-  <script src="/js/text.js"></script>
+  <script src="/js/common.js?v=20261003a"></script>
+  <script src="/js/text-core.js?v=20261003a"></script>
+  <script src="/js/text.js?v=20261003a"></script>
 </body>
 </html>

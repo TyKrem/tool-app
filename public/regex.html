@@ -1,23 +1,23 @@
 <!doctype html>
-<html lang="zh-CN" data-theme="light">
+<html lang="zh-CN">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <title>正则工具 · 工具汇总</title>
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%2338bdf8' d='M8 3h2v8h4V3h2v10H2V3h2v8h2zM2 15h12v2H2zM2 19h20v2H2zM16 3h6v2h-4v2h3v2h-3v2h4v2h-6z'/%3E%3C/svg%3E">
-  <link rel="stylesheet" href="/css/style.css?v=20260916e">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%230b63ce' d='M8 3h2v8h4V3h2v10H2V3h2v8h2zM2 15h12v2H2zM2 19h20v2H2zM16 3h6v2h-4v2h3v2h-3v2h4v2h-6z'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="/css/style.css?v=20261003a">
 </head>
 <body>
   <header class="topbar">
     <a class="brand home-link" href="/">
-      <span class="brand-icon">&#128736;</span>
+      <span class="brand-icon" aria-hidden="true">◇</span>
       <span class="brand-name">工具汇总</span>
     </a>
-    <nav class="page-nav">
+    <nav class="page-nav" aria-label="工具导航">
       <a href="/text.html">文本工具</a>
       <a href="/json.html">JSON 工具</a>
-      <span class="current">正则工具</span>
+      <span class="current" aria-current="page">正则工具</span>
       <a href="/diff.html">Diff 对比</a>
       <a href="/math.html">数学工具</a>
       <a href="/string.html">字符串工具</a>
@@ -32,7 +32,7 @@
     <section class="panel active">
       <div class="panel-head">
         <h1>正则工具</h1>
-        <p class="desc">输入正则表达式和文本，列出全部匹配的位置与内容，并在下方高亮预览命中片段。支持大小写、多行、单行（dotAll）等常用标记，始终按全局匹配。</p>
+        <p class="desc">输入正则表达式和文本，列出全部匹配的位置与内容，并在下方高亮预览命中片段。支持常用模板、捕获组与 Unicode；全局匹配在独立线程执行，超时自动停止。</p>
       </div>
 
       <div class="card toolbar-card">
@@ -46,6 +46,7 @@
           <label><input type="checkbox" value="s"> s 单行(.匹配换行)</label>
           <label><input type="checkbox" value="u"> u Unicode</label>
         </div>
+        <label class="preset-label">模板 <select id="regex-preset" class="select" aria-label="常用正则模板"><option value="">自定义</option><option value="number">数字</option><option value="email">邮箱</option><option value="url">网址</option><option value="chinese">中文</option></select></label>
         <div class="toolbar-actions">
           <button class="btn primary" id="regex-execute" type="button">匹配</button>
           <button class="btn" id="regex-clear" type="button">清空</button>
@@ -89,14 +90,7 @@
   </main>
 
   <div id="toast" class="toast hidden" role="status"></div>
-  <div class="mobile-block">
-    <div class="mobile-card">
-      <p class="mobile-emoji">📱</p>
-      <h2>不支持移动端</h2>
-      <p>当前页面暂不支持移动端，请使用电脑浏览器访问。</p>
-    </div>
-  </div>
-  <script src="/js/common.js"></script>
-  <script src="/js/regex.js"></script>
+  <script src="/js/common.js?v=20261003a"></script>
+  <script src="/js/regex.js?v=20261003a"></script>
 </body>
 </html>

@@ -85,3 +85,19 @@ test('空输入不抛错', function () {
   assert.strictEqual(CORE.urlEncode(''), '');
   assert.throws(function () { CORE.hexDecode(''); }, /没有找到十六进制内容/);
 });
+
+
+test('Base64：UTF-8 中文、emoji、大文本往返一致', function () {
+  ['你好 🌏', 'line1\nline2', '中文😀'.repeat(5000), ''].forEach(function (value) {
+    assert.strictEqual(CORE.convert('base64', CORE.convert('base64', value, false), true), value);
+  });
+  assert.strictEqual(CORE.base64Encode('你好'), '5L2g5aW9');
+  assert.strictEqual(CORE.base64Decode('5L2g\n5aW9'), '你好');
+  assert.strictEqual(CORE.base64Decode('YQ'), 'a');
+});
+
+test('Base64：非法编码和非 UTF-8 字节报错', function () {
+  ['A', 'a=b', '@@@', '====', '/w=='].forEach(function (value) {
+    assert.throws(function () { CORE.base64Decode(value); }, /Base64/);
+  });
+});

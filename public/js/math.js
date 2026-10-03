@@ -1,3 +1,4 @@
+'use strict';
 (function () {
   "use strict";
 
@@ -103,6 +104,7 @@
       );
       fillBaseReference(fromValue, fromBase);
     } catch (err) {
+      toField.value = "";
       baseHint(err.message, true);
       clearBaseReference();
     }
@@ -234,6 +236,37 @@
       values.push(upper ? uuid.toUpperCase() : uuid);
     }
     setResult("uuid-result", values.join("\n"));
+  });
+
+  REFERENCE_BASES.forEach(function (base) {
+    var value = $("base-ref-" + base);
+    var button = document.createElement("button");
+    button.type = "button"; button.className = "btn small"; button.textContent = "复制";
+    button.setAttribute("aria-label", "复制 " + base + " 进制结果");
+    value.after(button);
+    button.addEventListener("click", function () {
+      if (value.textContent !== "—") copyText(value.textContent);
+      else toast("先输入有效的数值");
+    });
+  });
+  // 参数修改后清除旧输出，避免结果与当前输入不一致。
+  var resultInputs = {
+    "calc-result": ["calc-expression"],
+    "random-result": ["random-min", "random-max", "random-count", "random-unique"],
+    "date-diff-result": ["date-start", "date-end"],
+    "date-add-result": ["date-base", "date-offset"],
+    "pick-result": ["pick-items", "pick-count", "pick-unique"],
+    "uuid-result": ["uuid-count", "uuid-hyphen", "uuid-upper"],
+  };
+  Object.keys(resultInputs).forEach(function (resultId) {
+    resultInputs[resultId].forEach(function (inputId) {
+      $(inputId).addEventListener("input", function () { setEmpty(resultId, "输入已变化，请重新计算或生成"); });
+    });
+    var copyButton = document.querySelector('[data-copy="' + resultId + '"]');
+    copyButton.disabled = true;
+    new MutationObserver(function () {
+      copyButton.disabled = $(resultId).classList.contains("muted") || $(resultId).classList.contains("error");
+    }).observe($(resultId), { attributes: true, attributeFilter: ["class"] });
   });
 
   /* ---------- 初始化 ---------- */

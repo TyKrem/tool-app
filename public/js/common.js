@@ -1,3 +1,4 @@
+'use strict';
 (function () {
   "use strict";
 
@@ -26,34 +27,60 @@
   }
 
   function copyText(text, okText) {
-    function done() {
-      toast(okText || "已复制");
-    }
-    if (!text) {
-      toast("没有可复制的内容");
-      return;
+    if (!text) { toast("没有可复制的内容"); return; }
+    function fallback() {
+      var previous = document.activeElement;
+      var holder = document.createElement("textarea");
+      holder.value = text;
+      holder.style.cssText = "position:fixed;opacity:0;top:0;left:0";
+      document.body.appendChild(holder);
+      holder.select();
+      var copied = false;
+      try { copied = document.execCommand("copy"); } catch (error) {}
+      holder.remove();
+      if (previous) previous.focus();
+      toast(copied ? (okText || "已复制") : "复制失败，请选中结果手动复制");
     }
     if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(text).then(done, function () {
-        fallbackCopy(text);
-        done();
-      });
-    } else {
-      fallbackCopy(text);
-      done();
-    }
+      navigator.clipboard.writeText(text).then(function () { toast(okText || "已复制"); }, fallback);
+    } else { fallback(); }
   }
 
-  function fallbackCopy(text) {
-    var ta = document.createElement("textarea");
-    ta.value = text;
-    ta.style.cssText = "position:fixed;opacity:0;top:0;left:0";
-    document.body.appendChild(ta);
-    ta.select();
-    try {
-      document.execCommand("copy");
-    } catch (e) {}
-    document.body.removeChild(ta);
+  function downloadText(text, filename) {
+    var url = URL.createObjectURL(new Blob([text], { type: "text/plain;charset=utf-8" }));
+    var link = document.createElement("a");
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+  }
+
+  function addDownload(copyId, getValue, filename) {
+    var copyButton = $(copyId);
+    var button = document.createElement("button");
+    button.type = "button";
+    button.className = "btn small";
+    button.id = copyId + "-download";
+    button.textContent = "下载";
+    button.disabled = copyButton.disabled;
+    copyButton.after(button);
+    new MutationObserver(function () { button.disabled = copyButton.disabled; })
+      .observe(copyButton, { attributes: true, attributeFilter: ["disabled"] });
+    button.addEventListener("click", function () {
+      if (!copyButton.disabled) downloadText(getValue(), filename);
+    });
+  }
+
+  function bindRun(editors, callback) {
+    editors.forEach(function (editor) {
+      editor.ta.addEventListener("keydown", function (event) {
+        if ((event.ctrlKey || event.metaKey) && event.key === "Enter") {
+          event.preventDefault(); callback();
+        }
+      });
+    });
   }
 
   /* ---------- 通用代码编辑器（textarea + 行号 + 行高亮层） ---------- */
@@ -83,7 +110,35 @@
 
     if (ed.readOnly) {
       ed.ta.readOnly = true;
-      ed.ta.tabIndex = -1;
+      ed.ta.tabIndex = 0;
+    }
+    var head = root.parentElement.querySelector(".ed-head");
+    var name = head && head.querySelector(".ed-name");
+    ed.ta.setAttribute("aria-label", name ? name.textContent.trim() : rootId);
+    if (!ed.readOnly && head) {
+      var picker = document.createElement("input");
+      picker.type = "file";
+      picker.accept = ".txt,.json,.csv,.log,.md,text/*,application/json";
+      picker.className = "import-file";
+      picker.setAttribute("aria-label", "导入 " + ed.ta.getAttribute("aria-label"));
+      var button = document.createElement("button");
+      button.type = "button"; button.className = "btn small"; button.textContent = "导入";
+      button.title = "本地读取 UTF-8 文本文件，最大 2 MB";
+      head.append(button, picker);
+      button.addEventListener("click", function () { picker.click(); });
+      picker.addEventListener("change", async function () {
+        var file = picker.files[0];
+        picker.value = "";
+        if (!file) return;
+        if (file.size > 2 * 1024 * 1024) { toast("文件超过 2 MB，请截取需要的部分"); return; }
+        try {
+          var text = await file.text();
+          if (ed.ta.value && !window.confirm("导入文件会替换当前输入，是否继续？")) return;
+          ed.ta.value = text.replace(/^\uFEFF/, "");
+          ed.ta.dispatchEvent(new Event("input", { bubbles: true }));
+          ed.ta.focus(); toast("已导入 " + file.name);
+        } catch (error) { toast("读取文件失败：" + error.message); }
+      });
     }
     if (opts.placeholder) ed.ta.placeholder = opts.placeholder;
     if (opts.spellcheck) ed.ta.spellcheck = true;
@@ -214,5 +269,8 @@
     copyText: copyText,
     makeEditor: makeEditor,
     refreshEditor: refreshEditor,
+    addDownload: addDownload,
+    downloadText: downloadText,
+    bindRun: bindRun,
   };
 })();

@@ -1,3 +1,4 @@
+'use strict';
 (function () {
   "use strict";
 
@@ -16,6 +17,8 @@
     dedupe: "只使用 A：删除 A 中重复行，保留首次出现的顺序。",
     intersect: "取 A 与 B 都包含的行，按 A 中首次出现顺序去重输出。",
     union: "A 与 B 的所有行合并，按出现顺序去重输出。",
+    subtract: "只在 A 中出现、B 中没有的行。",
+    reverseSubtract: "只在 B 中出现、A 中没有的行。",
   };
 
   var edA = makeEditor("editorA", {
@@ -38,24 +41,28 @@
   var setOf = window.TextCore.setOf;
 
   function updateTextHighlights() {
-    var aLines = splitLines(edA.ta.value);
-    var bLines = splitLines(edB.ta.value);
+    var aLines = edA.ta.value ? splitLines(edA.ta.value) : [];
+    var bLines = edB.ta.value ? splitLines(edB.ta.value) : [];
+    if ($("text-trim").checked) {
+      aLines = aLines.map(function (line) { return line.trim(); });
+      bLines = bLines.map(function (line) { return line.trim(); });
+    }
     var aMark = new Array(aLines.length);
     var bMark = new Array(bLines.length);
 
     if (textState.mode === "dedupe") {
       var ac = countsBy(aLines);
       aLines.forEach(function (line, i) {
-        if (ac[line] > 1) aMark[i] = "dup";
+        if (ac[line] > 1 && (!$("text-empty").checked || line.trim())) aMark[i] = "dup";
       });
     } else if (textState.mode === "intersect") {
       var bs = setOf(bLines);
       var as = setOf(aLines);
       aLines.forEach(function (line, i) {
-        if (bs[line]) aMark[i] = "hit";
+        if (bs[line] && (!$("text-empty").checked || line.trim())) aMark[i] = "hit";
       });
       bLines.forEach(function (line, i) {
-        if (as[line]) bMark[i] = "hit";
+        if (as[line] && (!$("text-empty").checked || line.trim())) bMark[i] = "hit";
       });
     }
 
@@ -70,8 +77,8 @@
   }
 
   function onTextInput() {
-    var aLines = splitLines(edA.ta.value);
-    var bLines = splitLines(edB.ta.value);
+    var aLines = edA.ta.value ? splitLines(edA.ta.value) : [];
+    var bLines = edB.ta.value ? splitLines(edB.ta.value) : [];
     var aDup = 0;
     if (textState.mode === "dedupe") {
       var ac = countsBy(aLines);
@@ -82,6 +89,7 @@
     $("hintA").textContent = aLines.length + " 行" + (aDup ? " · 重复 " + aDup + " 行" : "");
     $("hintB").textContent = bLines.length + " 行";
     updateTextHighlights();
+    $("text-copy").disabled = true;
     if (edC.ta.value) {
       textState.stale = true;
       $("hintC").textContent = "输入已变化，点击“执行”更新";
@@ -89,7 +97,7 @@
   }
 
   function modeName(m) {
-    return m === "dedupe" ? "去重" : m === "intersect" ? "交集" : "并集";
+    return { dedupe: "去重", intersect: "交集", union: "并集", subtract: "A − B", reverseSubtract: "B − A" }[m];
   }
 
   function setMode(mode) {
@@ -104,31 +112,17 @@
   }
 
   function runTextTool() {
-    var aLines = splitLines(edA.ta.value);
-    var bLines = splitLines(edB.ta.value);
-    var out = [];
-
-    if (textState.mode === "dedupe") {
-      out = uniqueInOrder(aLines);
-    } else if (textState.mode === "intersect") {
-      // 同 text-core.js：用 Object.create(null) 当查找表，
-      // 否则一行正好叫 __proto__ 时去重不生效
-      var seen = Object.create(null);
-      var bs = setOf(bLines);
-      aLines.forEach(function (line) {
-        if (bs[line] && !Object.prototype.hasOwnProperty.call(seen, line)) {
-          seen[line] = 1;
-          out.push(line);
-        }
-      });
-    } else {
-      out = uniqueInOrder(aLines.concat(bLines));
-    }
+    var out = window.TextCore.processLines(textState.mode, edA.ta.value, edB.ta.value, {
+      trim: $("text-trim").checked,
+      skipEmpty: $("text-empty").checked,
+      sort: $("text-sort").checked,
+    });
 
     var outText = out.join("\n");
     edC.ta.value = outText;
     refreshEditor(edC);
     textState.stale = false;
+    $("text-copy").disabled = !outText;
     $("hintC").textContent =
       modeName(textState.mode) + "完成：C 共 " + out.length + " 行";
     toast(modeName(textState.mode) + "完成，共 " + out.length + " 行");
@@ -152,11 +146,20 @@
     refreshEditor(edB);
     refreshEditor(edC);
     textState.stale = false;
+    $("text-copy").disabled = true;
+    edA.ta.focus();
     $("hintA").textContent = "";
     $("hintB").textContent = "";
     $("hintC").textContent = modeDesc[textState.mode];
     updateTextHighlights();
   });
 
+  $("text-swap").addEventListener("click", function () {
+    var previous = edA.ta.value; edA.ta.value = edB.ta.value; edB.ta.value = previous;
+    onTextInput();
+  });
+  ["text-trim", "text-empty", "text-sort"].forEach(function (id) { $(id).addEventListener("change", onTextInput); });
+  window.ToolKit.bindRun([edA, edB], runTextTool);
+  window.ToolKit.addDownload("text-copy", function () { return edC.ta.value; }, "文本结果.txt");
   setMode("dedupe");
 })();

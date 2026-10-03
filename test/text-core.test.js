@@ -15,8 +15,9 @@ test('splitLines：末尾换行不算一行，中间空行保留', function () {
   assert.deepStrictEqual(CORE.splitLines('\n'), ['']);
   assert.deepStrictEqual(CORE.splitLines(''), ['']);
   assert.deepStrictEqual(CORE.splitLines(null), ['']);
-  // CR 不做特殊处理，保持原样（工具面向的是纯文本粘贴）
-  assert.deepStrictEqual(CORE.splitLines('a\r'), ['a\r']);
+  // 文件导入时统一 Windows / 旧 Mac 的换行，避免行尾 CR 参与比较。
+  assert.deepStrictEqual(CORE.splitLines('a\r'), ['a']);
+  assert.deepStrictEqual(CORE.splitLines('a\r\nb\r\n'), ['a', 'b']);
 });
 
 test('uniqueInOrder 保序去重', function () {
@@ -64,4 +65,19 @@ test('查找表不带原型，不会被别的键名带出来', function () {
   assert.ok(!s['hasOwnProperty']);
   const c = CORE.countsBy(['a']);
   assert.ok(!c['constructor']);
+});
+
+
+test('差集保持顺序、去重，特殊键名和空输入不误判', function () {
+  assert.deepStrictEqual(CORE.processLines('subtract', 'b\n__proto__\nb\na', 'a', {}), ['b', '__proto__']);
+  assert.deepStrictEqual(CORE.processLines('reverseSubtract', 'a', 'b\na\nc', {}), ['b', 'c']);
+  assert.deepStrictEqual(CORE.processLines('dedupe', '', '', {}), []);
+  assert.deepStrictEqual(CORE.processLines('intersect', '\n', '', {}), []);
+});
+
+test('行规范化先于集合运算，原文默认保留空白', function () {
+  const left = ' 苹果 \r\n\r\n香蕉\r\n苹果\r\n';
+  assert.deepStrictEqual(CORE.processLines('intersect', left, '苹果', { trim: true, skipEmpty: true }), ['苹果']);
+  assert.deepStrictEqual(CORE.processLines('dedupe', 'a \na', '', {}), ['a ', 'a']);
+  assert.deepStrictEqual(CORE.processLines('union', '10\n2', '1', { sort: true }), ['1', '2', '10']);
 });

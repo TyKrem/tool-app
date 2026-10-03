@@ -1,3 +1,4 @@
+'use strict';
 (function () {
   "use strict";
 
@@ -12,13 +13,8 @@
     placeholder: "在这里输入需要匹配的文本…",
     softWrap: true,
     onInput: function () {
-      $("regex-text-hint").textContent = (edText.ta.value || "").split("\n").length + " 行 · " + edText.ta.value.length + " 字符";
-      if (!$("regex-list").classList.contains("hidden")) {
-        $("regex-result-hint").textContent = "文本已变化，请重新匹配";
-      }
-      if (!$("regex-preview").querySelector(".regex-empty")) {
-        $("regex-preview-hint").textContent = "文本已变化，请重新匹配";
-      }
+      $("regex-text-hint").textContent = edText.ta.value.length + " 字符 · " + (edText.ta.value ? edText.ta.value.split("\n").length : 0) + " 行";
+      invalidate();
     },
   });
 
@@ -69,54 +65,73 @@
     return { line: line, col: col };
   }
 
-  function runMatch() {
-    var patternText = $("regex-pattern").value.trim();
-    var flags = currentFlags();
-    var text = edText.ta.value || "";
-    $("regex-error").classList.add("hidden");
-    $("regex-list").classList.add("hidden");
-    $("regex-list").innerHTML = "";
+  var worker = null;
+  var timeout = null;
+  var latestMatches = [];
+
+  function stopWorker() {
+    clearTimeout(timeout);
+    if (worker) worker.terminate();
+    worker = null;
+    $("regex-execute").disabled = false;
+    $("regex-execute").textContent = "匹配";
+  }
+
+  function invalidate() {
+    stopWorker();
+    latestMatches = [];
     $("regex-copy").disabled = true;
+    $("regex-list").innerHTML = "";
+    $("regex-list").classList.add("hidden");
+    $("regex-error").classList.add("hidden");
+    $("regex-empty").classList.remove("hidden");
+    $("regex-empty").textContent = "输入已变化，点击匹配更新结果";
+    $("regex-result-hint").textContent = "等待匹配";
+    $("regex-preview").innerHTML = '<span class="regex-empty">匹配后显示高亮预览</span>';
+    $("regex-preview-hint").textContent = "等待匹配";
+  }
 
-    if (!patternText) {
-      $("regex-empty").classList.remove("hidden");
-      $("regex-empty").textContent = "请先输入正则表达式";
-      $("regex-result-hint").textContent = "缺少表达式";
-      renderPreview(text, []);
-      return;
-    }
-    var re;
+  function showError(message) {
+    $("regex-empty").classList.add("hidden");
+    $("regex-error").classList.remove("hidden");
+    $("regex-error").textContent = message;
+    $("regex-result-hint").textContent = "匹配未完成";
+  }
+
+  function runMatch() {
+    invalidate();
+    var pattern = $("regex-pattern").value;
+    var text = edText.ta.value;
+    if (!pattern) { showError("请先输入正则表达式"); return; }
+    if (text.length > 2 * 1024 * 1024) { showError("文本超过 2 MB，请截取需要的部分"); return; }
     try {
-      re = new RegExp(patternText, flags.indexOf("g") >= 0 ? flags : flags + "g");
-    } catch (err) {
-      $("regex-empty").classList.add("hidden");
-      $("regex-error").classList.remove("hidden");
-      $("regex-error").textContent = "正则表达式错误：" + err.message;
-      $("regex-result-hint").textContent = "表达式无效";
-      renderPreview(text, []);
-      return;
-    }
+      worker = new Worker("/js/regex-worker.js?v=20261003a");
+      $("regex-execute").disabled = true;
+      $("regex-execute").textContent = "匹配中…";
+      $("regex-result-hint").textContent = "正在匹配…";
+      worker.onmessage = function (event) {
+        stopWorker();
+        if (event.data.error) { showError("正则表达式错误：" + event.data.error); return; }
+        latestMatches = event.data.matches;
+        renderMatches(text, latestMatches);
+      };
+      worker.onerror = function () { stopWorker(); showError("匹配线程无法启动，请刷新后重试"); };
+      timeout = setTimeout(function () {
+        stopWorker(); showError("匹配超过 2 秒，已停止；请简化表达式或缩短文本");
+      }, 2000);
+      worker.postMessage({ pattern: pattern, flags: currentFlags(), text: text, limit: MATCH_LIMIT });
+    } catch (error) { stopWorker(); showError("无法执行匹配：" + error.message); }
+  }
 
+  function renderMatches(text, matches) {
     var listEl = $("regex-list");
     var emptyEl = $("regex-empty");
-    var matches = [];
-    var m;
-    while ((m = re.exec(text)) !== null) {
-      matches.push({
-        text: m[0],
-        index: m.index,
-        groups: m.slice(1).filter(function (x) { return x !== undefined; }),
-      });
-      if (m[0] === "") re.lastIndex++;
-      if (re.lastIndex > text.length) break;
-      if (matches.length >= MATCH_LIMIT) break;
-    }
-
     emptyEl.classList.add("hidden");
     renderPreview(text, matches);
     if (!matches.length) {
       $("regex-result-hint").textContent = "未找到匹配";
-      listEl.innerHTML = '<div class="regex-empty">未找到匹配结果</div>';
+      emptyEl.classList.remove("hidden");
+      emptyEl.textContent = "未找到匹配结果";
       return;
     }
 
@@ -130,7 +145,7 @@
       if (mt.groups.length) {
         groupsHtml = '<div class="regex-groups">' +
           mt.groups.map(function (g, gi) {
-            return "<span>组" + (gi + 1) + ": " + esc(g == null ? "" : g) + "</span>";
+            return "<span>组" + (gi + 1) + ": " + esc(g == null ? "（未参与匹配）" : g) + "</span>";
           }).join("") +
           "</div>";
       }
@@ -162,7 +177,9 @@
     copyText(text, "已复制全部匹配内容");
   });
   function clearAll() {
+    invalidate();
     $("regex-pattern").value = "";
+    $("regex-preset").value = "";
     document.querySelectorAll(".regex-flags input").forEach(function (c) { c.checked = false; });
     edText.ta.value = "";
     refreshEditor(edText);
@@ -178,11 +195,26 @@
     $("regex-preview-hint").textContent = "匹配处会用底色标出";
     $("regex-pattern").focus();
   }
+  $("regex-pattern").addEventListener("input", function () { $("regex-preset").value = ""; invalidate(); });
+  document.querySelectorAll(".regex-flags input").forEach(function (input) { input.addEventListener("change", invalidate); });
+  var presets = { number: "\\d+(?:\\.\\d+)?", email: "[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}", url: "https?://[^\\s]+", chinese: "[\\u4e00-\\u9fff]+" };
+  $("regex-preset").addEventListener("change", function () {
+    if (!presets[this.value]) return;
+    $("regex-pattern").value = presets[this.value];
+    invalidate();
+    if (edText.ta.value) runMatch();
+    else edText.ta.focus();
+  });
+  window.ToolKit.bindRun([edText], runMatch);
+  window.ToolKit.addDownload("regex-copy", function () {
+    return latestMatches.map(function (match) { return match.text; }).join("\n");
+  }, "正则匹配.txt");
   $("regex-clear").addEventListener("click", clearAll);
   $("regex-text-clear").addEventListener("click", function () {
     edText.ta.value = "";
     refreshEditor(edText);
     $("regex-text-hint").textContent = "输入要匹配的文本";
+    invalidate();
     renderPreview("", []);
   });
 })();
